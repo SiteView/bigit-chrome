@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "One-click Kittens",
+  "description": "This extension demonstrates a 'browser action' with kittens.",
+  "version": "1.0",
+  "plugins": [
+    { "path": "nphelloworld.so" ,"public":true}
+  ],
+  "browser_action": {
+    "default_icon": {
+      "19":"icon.png",
+      "38":"icon.png"
+    },
+    "default_title": "手机助手",
+    "default_popup": "popup.html"
+  },
+  "permissions":[
+    "contextMenus",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://play.google.com/store/apps/details/*"],
+      "js": ["inject.js"]
+    }
+  ]
+}
