@@ -1,13 +1,21 @@
 # Object files
 *.o
 *.ko
+*.obj
+*.tlog
+*.sdf
+*.ipch
+*.ilk
+*.pdb
+*.exp
+*.idb
+*.pch
+
+*.log
 
 # Libraries
 
 # Shared objects (inc. Windows DLLs)
-*.so.*
-*.dylib
+
 
 # Executables
-*.out
-*.app
