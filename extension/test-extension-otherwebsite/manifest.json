@@ -1,14 +1,20 @@
 {
     "manifest_version": 2,
-    "name": "One-click Kittens",
-    "description": "This extension demonstrates a 'browser action' with kittens.",
-    "version": "1.0",
+    "name": "Bigit",
+    "description": "This extension download apps from google play",
+    "version": "0.1",
     "browser_action": {
         "default_icon": {
-            "19":"icon.png",
-            "38":"icon.png"
+            "19":"icon_19.png",
+            "38":"icon_38.png"
         },
-        "default_title": "手机助手"
+        "default_title": "Bigit手机助手",
+        "default_popup": "popup.html"
+    },
+    "icons": {
+      "16": "icon_16.png",
+      "48": "icon_48.png",
+      "128": "icon_128.png"
     },
     "permissions":[
         "downloads",
