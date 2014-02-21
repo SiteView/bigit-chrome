@@ -1,16 +1,91 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Getting Started Extension's Popup</title>
-    <script src="popup.js"></script>
-  </head>
-  <body>
-    <!--
-    <object type="application/x-bigit" id="pluginId"></object>-->
-    <a href="#" id="gotoGooglePaly">Goto Google play</a> <br />
-	<div class="phone-status-div">
-		<span>手机状态：</span><span class="phone-status">未链接</span>
-	</div>
-  </body>
-</html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="assets/css/popup.css" type="text/css">
+    <script src="assets/js/jquery-2.1.0.min.js" type="text/javascript"></script>
+    <script src="assets/js/popup.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="menu">
+    <div id="gotoGooglePlay" name="[Goto Google Play]" class="item" title="Goto Google Play">
+        <img src="assets/images/googleplay.png"/>
+        <span>Goto Google Play</span>
+    </div>
+    <div id="separatorProxies" class="separator"></div>
+    <div id="managePhone">
+        <div class="item" title="">
+            <img src="assets/images/options.png"/>
+            <span>Manage My phone</span>
+        </div>
+    </div>
+    <div id="separatorRules" class="separator"></div>
+    <div id="LAN" class="item" title="LAN">
+        <img src="assets/images/network.png"/>
+        <span>LAN</span>
+    </div>
+    <div id="personalCloud" name="[Personal Cloud]" class="item" title="Use System Proxy (need restart)">
+        <img src="assets/images/cloud.png"/>
+        <span>Personal Cloud</span>
+    </div>
 
+    <div id="separatorOptions" class="separator"></div>
+
+    <div id="menuAbout" class="item">
+        <img src="assets/images/about.png"/><span >About Bitgit</span>
+    </div>
+</div>
+<!--
+<div id="about">
+    <div class="close"><img src="assets/images/close.png"/></div>
+    <div class="header">
+        <table>
+            <tr>
+                <td><img src="assets/images/icon-128.png" width="70"/></td>
+                <td>
+                    <table class="titleTable">
+                        <tr>
+                            <td colspan="2">
+                                <div class="title">SwitchySharp</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="1" class="version" data-i18n-content="popup_version">version</td>
+                            <td class="version"><span class="versionNumber">version number here</span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="body">
+        <div id="developer">
+            <div class="name">
+                <table>
+                    <tr>
+                        <td data-i18n-content="popup_developedBy">Developed by</td>
+                        <td>@Shyc2001</td>
+                    </tr>
+                    <tr>
+                        <td data-i18n-content="popup_basedOn">Based on the work of</td>
+                        <td>Mhd Hejazi &amp; ayanamist.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+      <span>
+        <img src="assets/images/web.png" valign="middle"/>
+        <a href="" id="openMainWebsite" data-i18n-content="popup_switchyWebPage">Switchy! web
+                    page</a></span><br/>
+        <img src="assets/images/web.png" valign="middle"/>
+        <a href="" id="openPlusWebsite" data-i18n-content="popup_switchyPlusWebPage">SwitchyPlus web
+            page</a><br/>
+      <span><img src="assets/images/web.png" valign="middle"/>
+        <a href="" id="openSupportWebsite" data-i18n-content="popup_supportAndBugReports">Support &amp;
+                    Bug reports</a></span><br/>
+    </div>
+    <div class="footer">
+        <div data-i18n-content="popup_copyright">Copyright &copy; 2011 @Shyc2001.<br/>Some rights reserved.</div>
+    </div>
+</div>
+-->
+</body>
+</html>
