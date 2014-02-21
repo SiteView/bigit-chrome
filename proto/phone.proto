@@ -66,6 +66,7 @@ message Person {
 
 message AddressBook {
   repeated Person person = 1;
+ 
 }
 
 message SMSInfo{
@@ -81,5 +82,6 @@ message SMSInfo{
 
 message SMSList {
   repeated SMSInfo sms = 1;
+ 
 }
 
