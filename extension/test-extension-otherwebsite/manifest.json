@@ -18,15 +18,16 @@
     },
     "permissions":[
         "downloads",
-        "*://package.1mobile.com/*"
+        "*://package.1mobile.com/*",
+        "tabs"
     ],
     "content_scripts": [
         {
             "matches": ["*://play.google.com/*"],
-            "js": ["content_scripts.js"]
+            "js": ["assets/js/content_scripts.js"]
         }
     ],
     "background": {
-        "scripts": ["background.js"]
+        "page": "background.html"
     }
 }
