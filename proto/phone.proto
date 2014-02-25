@@ -13,16 +13,18 @@ message DeviceInfo{
 }
 
 message StorageInfo{
-	required int32 total = 1; //K
-	required int32 free = 2;  //K
+	required string total = 1; //K
+	required string free = 2;  //K
+	required string used = 3;  //K
+	
 }
 
 message AppInfo{
 	required string id = 1;
 	required string name = 2;
 	required string version = 3;
-	required int32 size = 4;   //K
-	required int32 location = 5;
+	required string size = 4;   //K
+	required string location = 5;
 	required string icodata = 6;
 }
 
@@ -33,10 +35,10 @@ message AppList{
 //include music,video,picture
 message ResInfo{
 	required string path = 1;
-	required int32 size = 2;
+	required string size = 2;
 	required string icodata = 3;
 	optional string createdate = 4;
-	optional int32 duration = 5; //second
+	optional string duration = 5; //second
 	optional string author = 6;
 	optional string format = 7;
 }
@@ -47,7 +49,7 @@ message ResList{
 
 message Person {
   required string name = 1;
-  required int32 id = 2;        // Unique ID number for this person.
+  required string id = 2;        // Unique ID number for this person.
   optional string email = 3;
 
   enum PhoneType {
