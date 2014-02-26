@@ -10,3 +10,12 @@ SideNavModule.controller("SideNavModuleController",
     	}
     ]);
 
+var PhoneStatusModule = angular.module('PhoneStatusModule',[]);
+
+PhoneStatusModule.controller("PhoneStatusCtrl",
+	[
+		'$scope', 
+		function($scope) {
+        	$scope.status = false;
+    	}
+    ]);
