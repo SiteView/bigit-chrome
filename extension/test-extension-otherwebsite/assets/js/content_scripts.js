@@ -50,6 +50,17 @@ function __creatDownloadButton(){
 	document.getElementById("_downloadAndInstall").addEventListener("click",__downloadButtonListener);
 }
 
+function __removeInstallButton(){
+	var installBtn = document.querySelector("div[class=details-actions] span");
+	if(installBtn){
+		installBtn.remove();
+	}
+	var wishlistBtn  = document.querySelector("div[class=details-actions] div[class=wishlist-container");
+	if(wishlistBtn){
+		wishlistBtn.remove();
+	}
+}
+
 function __triggerButtonVisibilityCheck() {
 	var showButton = false;
 	if (location.pathname.lastIndexOf('/store/apps/details', 0) !== 0) {
@@ -62,7 +73,8 @@ function __triggerButtonVisibilityCheck() {
         	showButton = !/\d/.test(price) || price === '0';
     }
     if(showButton){
-    	__creatDownloadButton();
+    	__removeInstallButton();
+    	__creatDownloadButton();	
     }
 }
 document.addEventListener("DOMSubtreeModified",__triggerButtonVisibilityCheck,false);

@@ -1,0 +1,39 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+.container-fluid {
+    height: 100%; 
+    margin: 0;
+    padding-right: 0;
+	padding-left: 0;
+}
+
+.index-body{
+	height: 100%;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.apps-body{
+	background: black;
+	height: 100%;
+	padding-top:10% 
+}
+
+.apps-contents{
+	text-align: center;
+	color: white;
+	cursor: pointer;
+}
+.apps-contents .apps-contents-image{
+	height: 128px; 
+	width: 128px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.apps-contents .apps-contents-title{
+	
+}
