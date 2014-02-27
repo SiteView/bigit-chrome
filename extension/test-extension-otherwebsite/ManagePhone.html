@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<html xmlns="http://www.w3.org/1999/xhtml"ng-app="PhoneManageApp">
 <head>
 	<title>Manage Phone</title>
 	<!--控制移动设备的可缩放-->
@@ -8,18 +8,20 @@
   <script src="assets/js/lib/jquery-2.1.0.min.js" type="text/javascript"></script>
   <script src="assets/js/lib/bootstrap.min.js" type="text/javascript"></script>
   <script src="assets/js/lib/angular.min.js" type="text/javascript"></script>
+  
   <script src="phone/ManagePhone.js" type="text/javascript"></script>
- 
+  <script src="phone/ManagePhoneFilter.js" type="text/javascript"></script>
+  <script src="phone/ManagePhoneModule.js" type="text/javascript"></script>
   <link rel="stylesheet" href="assets/css/ManagePhone.css" type="text/css">
 </head>
 <body>
 <div class="container-fluid">
   	<div class="row">
   		<div class="col-md-2">
-          <div class="phone-status" ng-app="PhoneStatusModule" ng-controlle="PhoneStatusCtrl">
-              Phone status {{status}}
+          <div class="phone-status" ng-controller="PhoneConnectStatusModuleCtrl">
+              Phone status: {{status | checkPhoneConnectStatus}}
           </div>
-      		<ul id="side_nav" class="nav nav-pills nav-stacked">
+      		<ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
     				<li id="nav_Home" class="active"><a href="#">Welcome to BIGIT</a></li>
     				<li id="nav_AppStore"><a href="#">App Store</a></li>
     				<li id="nav_MyApp">
