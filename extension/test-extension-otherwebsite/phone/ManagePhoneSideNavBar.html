@@ -1,0 +1,19 @@
+<div class="phone-status" ng-controller="PhoneConnectStatusModuleCtrl">
+    Phone status: {{status | checkPhoneConnectStatus}}
+</div>
+<ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
+	<li id="nav_Home" class="active" ng-click="navAction('nav_Home')"><a href="#">Welcome to BIGIT</a></li>
+	<li id="nav_AppStore" ng-click="navAction('nav_AppStore')"><a href="#">App Store</a></li>
+	<li id="nav_MyApp">
+		<a href="#">
+			<span class="badge pull-right">{{appCounts}}</span>
+			My App
+		</a>
+	</li>
+	<li id="nav_MyContacts" ng-click="navAction('nav_MyContacts')"><a href="#">My Contacts</a></li>
+	<li id="nav_MyMusic" ng-click="navAction('nav_MyMusic')"><a href="#">My Music</a></li>
+	<li id="nav_MyPictures" ng-click="navAction('nav_MyPictures')"><a href="#">My Picture</a></li>
+	<li id="nav_MyVideo" ng-click="navAction('nav_MyVideo')"><a href="#">My Video</a></li>
+	<li id="nav_MySms" ng-click="navAction('nav_MySms')"><a href="#">My Sms</a></li>
+	<li id="nav_MyFiles" ng-click="navAction('nav_MyFiles')"><a href="#">My Files</a></li>
+</ul>

@@ -27,16 +27,68 @@ angular.module('PhoneManageApp.services', [])
         }
     });
 
-//侧边栏的 小通知，如 应用数量等。
+//侧边栏的 小通知，如 应用数量等。dom click listener
 var SideNavModule = angular.module('SideNavModule',['PhoneManageApp.services']);
 SideNavModule.controller("SideNavModuleController",
 	[
 		'$scope',
         'phoneManageService',
-		function($scope,phoneManageService) {
+        'navButtonActionService',
+		function($scope,phoneManageService,navButtonActionService) {
         	$scope.appCounts = phoneManageService.getAppCount();
+            $scope.navAction = navButtonActionService.navAction;
     	}
     ]);
+
+SideNavModule.factory('navButtonActionService',function(){ //手机管理服务
+    var SideNavAction = {
+        "changeNavStyle":function(did){ // dom id
+            did = "#"+did;
+            $(did).parent().find(".active").removeClass('active');
+            $(did).addClass('active');
+        },
+        "doNavigtion":function(did){
+            SideNavAction.changeNavStyle(did);
+            var action = did.replace("nav_","goto");
+            SideNavAction[action]();
+        },
+        "gotoHome":function(){
+            console.log("gotoHome");
+        },
+        "gotoAppStore":function(){
+            console.log("gotoAppStore");
+        },
+        "gotoMyApp":function(){
+            console.log("gotoMyApp");
+        },
+        "gotoMyContacts":function(){
+            console.log("gotoMyContacts");
+        },
+        "gotoMyMusic":function(){
+            console.log("gotoMyMusic");
+        },
+        "gotoMyPictures":function(){
+            console.log("gotoMyPictures");
+        },
+        "gotoMyVideo":function(){
+            console.log("gotoMyVideo");
+        },
+        "gotoMySms":function(){
+            console.log("gotoMyMySms");
+        },
+        "gotoMyFiles":function(){
+            console.log("gotoMyFiles");
+        }
+    };
+
+    var navAction = function(domId){
+        SideNavAction.doNavigtion(domId);
+    }
+
+    return {
+        'navAction':navAction
+    }
+});
 
 //连接手机的状态
 var PhoneConnectStatusModule = angular.module('PhoneConnectStatusModule',['PhoneManageApp.services']);
@@ -52,4 +104,21 @@ PhoneConnectStatusModule.controller("PhoneConnectStatusModuleCtrl",
 
 
 
-var PhoneManageApp = angular.module('PhoneManageApp',['PhoneConnectStatusModule','SideNavModule','ManagePhoneFilter']);
+var PhoneManageApp = angular.module('PhoneManageApp',[
+    'PhoneConnectStatusModule',
+    'SideNavModule',
+    'ManagePhoneFilter']);
+
+//自定义指令
+PhoneManageApp.directive('bigitSidenavbar', function() { //侧边导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneSideNavBar.html'
+        };
+    })
+    .directive('bigitTopnavbar',function(){ //顶部导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneTopNavBar.html'
+        };
+    });
