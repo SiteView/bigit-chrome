@@ -1,6 +1,6 @@
 /**********************************************************\
 
-  Auto-generated helloworldAPI.h
+  Auto-generated bigitAPI.h
 
 \**********************************************************/
 
@@ -9,16 +9,16 @@
 #include <boost/weak_ptr.hpp>
 #include "JSAPIAuto.h"
 #include "BrowserHost.h"
-#include "helloworld.h"
+#include "bigit.h"
 #include <variant.h>
-#ifndef H_helloworldAPI
-#define H_helloworldAPI
+#ifndef H_bigitAPI
+#define H_bigitAPI
 
-class helloworldAPI : public FB::JSAPIAuto
+class bigitAPI : public FB::JSAPIAuto
 {
 public:
     ////////////////////////////////////////////////////////////////////////////
-    /// @fn helloworldAPI::helloworldAPI(const helloworldPtr& plugin, const FB::BrowserHostPtr host)
+    /// @fn bigitAPI::bigitAPI(const bigitPtr& plugin, const FB::BrowserHostPtr host)
     ///
     /// @brief  Constructor for your JSAPI object.
     ///         You should register your methods, properties, and events
@@ -28,37 +28,37 @@ public:
     /// @see FB::JSAPIAuto::registerProperty
     /// @see FB::JSAPIAuto::registerEvent
     ////////////////////////////////////////////////////////////////////////////
-    helloworldAPI(const helloworldPtr& plugin, const FB::BrowserHostPtr& host) :
+    bigitAPI(const bigitPtr& plugin, const FB::BrowserHostPtr& host) :
         m_plugin(plugin), m_host(host)
     {
-        registerMethod("echo",      make_method(this, &helloworldAPI::echo));
+        registerMethod("echo",      make_method(this, &bigitAPI::echo));
         //myself methed
-        registerMethod("mytest",      make_method(this, &helloworldAPI::mytest));
+        registerMethod("mytest",      make_method(this, &bigitAPI::mytest));
 
-        registerMethod("testEvent", make_method(this, &helloworldAPI::testEvent));
+        registerMethod("testEvent", make_method(this, &bigitAPI::testEvent));
         
         // Read-write property
         registerProperty("testString",
                          make_property(this,
-                                       &helloworldAPI::get_testString,
-                                       &helloworldAPI::set_testString));
+                                       &bigitAPI::get_testString,
+                                       &bigitAPI::set_testString));
         
         // Read-only property
         registerProperty("version",
                          make_property(this,
-                                       &helloworldAPI::get_version));
+                                       &bigitAPI::get_version));
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    /// @fn helloworldAPI::~helloworldAPI()
+    /// @fn bigitAPI::~bigitAPI()
     ///
     /// @brief  Destructor.  Remember that this object will not be released until
     ///         the browser is done with it; this will almost definitely be after
     ///         the plugin is released.
     ///////////////////////////////////////////////////////////////////////////////
-    virtual ~helloworldAPI() {};
+    virtual ~bigitAPI() {};
 
-    helloworldPtr getPlugin();
+    bigitPtr getPlugin();
 
     // Read/Write property ${PROPERTY.ident}
     std::string get_testString();
@@ -85,11 +85,11 @@ public:
     FB::variant mytest(const FB::variant& msg);
     std::string exec(const char* cmd);
 private:
-    helloworldWeakPtr m_plugin;
+    bigitWeakPtr m_plugin;
     FB::BrowserHostPtr m_host;
 
     std::string m_testString;
 };
 
-#endif // H_helloworldAPI
+#endif // H_bigitAPI
 

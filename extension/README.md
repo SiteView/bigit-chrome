@@ -11,7 +11,7 @@ http://package.1mobile.com/d.php?pkg=@appName@&channel=304
 1. 安装sdk
 2. 复制adb工具
 ```shell
-sudo cp -r sdk/platform-tools /opt
+sudo cp -r sdk /opt
 ```
 3.  安装adb服务到开机启动
 ```shell
@@ -24,12 +24,12 @@ case "$1" in
    start)
          # Start daemon.
          echo -n "Starting ADB: "
-         /opt/platform-tools/adb start-server
+         /opt/sdk/platform-tools/adb start-server
          ;;
    stop)
          # Stop daemons.
          echo -n "Shutting ADB: "
-         /opt/platform-tools/adb kill-server
+         /opt/sdk/platform-tools/adb kill-server
          ;;
    restart)
          $0 stop
@@ -61,12 +61,12 @@ sudo vim /etc/environment
 ```
 最后PATH类似这样：
 ``` shell
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/platform-tools"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/sdk/tools:/opt/sdk/platform-tools"
 ```
 
 5. 重启机器。运行：
 ```shell
-sudo chmod +x /opt/platform-tools/adb
+sudo chmod -R 777 /opt/sdk
 ```
 
 6.测试。运行：
@@ -76,5 +76,5 @@ adb
 
 ### Ubuntu 启动虚拟机
 ```shell
-emulator-arm64 -avd <avd_name>
+emulator-arm -avd avd_name
 ```

@@ -1,7 +1,17 @@
-var __DOWNLOADURL = "http://package.1mobile.com/d.php?pkg=@appName@&channel=304";
+var  storelist = {
+    OneMobile:"http://package.1mobile.com/d.php?pkg=@appName@&channel=304",
+    wangdoujia:"http://apps.wandoujia.com/apps/@appName@/download"
+}
+
+var _defaultStore_ = "wangdoujia";
+
+function getDownloadAppUrl(appid){
+    var storeurl = storelist[_defaultStore_];
+    return storeurl.replace(/\@appName\@/,appid);
+}
 
 function downloadApp(appId){
-	var downloaURL = __DOWNLOADURL.replace(/\@appName\@/,appId);
+	var downloaURL = getDownloadAppUrl(appId);
 	var filename = appId + ".apk";
 	chrome.downloads.download({
     	url:downloaURL,
