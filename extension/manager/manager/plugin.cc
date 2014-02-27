@@ -11,7 +11,8 @@
 #if defined(WIN32)
 #include <Windows.h>
 #include <atlstr.h>
-
+#include <sstream>
+#include <iostream>
 #endif
 // 接口定义
 const char* kDoCommand =    "DoCommand";
@@ -29,6 +30,11 @@ const char* kDoUninstall = "DoUninstall"; // 卸载
 
 #define ADB_COMMAND_PATH  "c:\\adb.exe"
 
+ std::string PictureType[3]={"jpg","jpeg","png"};// 图片数据类型
+ std::string VideoType[6]={"Ogg","mp4"};// 影像数据类型
+ std::string MusicType[6]={"aac","mp3","AMR"};// 影像数据类型
+
+using namespace std;
 
 #if defined(WIN32)
 typedef SOCKET Socket;
@@ -43,6 +49,85 @@ void CloseSocket(Socket socket)
 #else
     close(socket);
 #endif
+}
+
+CString GetAppPath()
+{
+CString strPath;
+TCHAR   exeFullPath[MAX_PATH];
+::GetModuleFileName(NULL,exeFullPath,MAX_PATH);
+strPath=exeFullPath;
+return strPath.Left(strPath.ReverseFind('\\'));
+} 
+
+string trim(const string& str)
+{
+    string::size_type pos = str.find_first_not_of(' ');
+    if (pos == string::npos)
+    {
+        return str;
+    }
+    string::size_type pos2 = str.find_last_not_of(' ');
+    if (pos2 != string::npos)
+    {
+        return str.substr(pos, pos2 - pos + 1);
+    }
+    return str.substr(pos);
+}
+
+int split(const string& str, vector<string>& ret_, string sep = ",")
+{
+    if (str.empty())
+    {
+        return 0;
+    }
+
+    string tmp;
+    string::size_type pos_begin = str.find_first_not_of(sep);
+    string::size_type comma_pos = 0;
+
+    while (pos_begin != string::npos)
+    {
+        comma_pos = str.find(sep, pos_begin);
+        if (comma_pos != string::npos)
+        {
+            tmp = str.substr(pos_begin, comma_pos - pos_begin);
+            pos_begin = comma_pos + sep.length();
+        }
+        else
+        {
+            tmp = str.substr(pos_begin);
+            pos_begin = comma_pos;
+        }
+
+        if (!tmp.empty())
+        {
+            ret_.push_back(tmp);
+            tmp.clear();
+        }
+    }
+    return 0;
+}
+
+string replace(const string& str, const string& src, const string& dest)
+{
+    string ret;
+
+    string::size_type pos_begin = 0;
+    string::size_type pos       = str.find(src);
+    while (pos != string::npos)
+    {
+        cout <<"replacexxx:" << pos_begin <<" " << pos <<"\n";
+        ret.append(str.data() + pos_begin, pos - pos_begin);
+        ret += dest;
+        pos_begin = pos + 1;
+        pos       = str.find(src, pos_begin);
+    }
+    if (pos_begin < str.length())
+    {
+        ret.append(str.begin() + pos_begin, str.end());
+    }
+    return ret;
 }
 
 
@@ -276,12 +361,108 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
   bool ret_val = false;
   if (!name) {
     return ret_val;
+
   }
+  
+	
+	if (!strcmp(name, kGetAppList))
+	{
+			ret_val = true;
+	        CString ss = ExecuteExternalFile("c:\\adb.exe","shell pm list packages -3 -f");
+			delete buf;
+			bigit::AppList plist;
+			int last = 0;
+			int first = 0;
+			int cout = 0;
+			char pname_[1000];
+
+			for (int i = 0;ss.GetLength() > 2 ;i++)
+			{
+				last = ss.Find(CString("\x0d")); // 行结束
+
+				std::string ssline = CString2String(ss.Mid(first,last)); // 取得一行
+
+				int de = ssline.find("=");  //等号后为软件名
+
+				if(de  != std::string::npos)
+				{
+					std::string pname =ssline.substr(de+1,ssline.size()-1);//name
+
+					std::string path =ssline.substr(8,de-1);//path
+
+					sprintf(pname_,"shell dumpsys package %s",pname.c_str());
+
+					 CString sub = ExecuteExternalFile("c:\\adb.exe",pname_); //  详细信息
+
+					bigit::AppInfo * pnewapp = plist.add_app();
+					pnewapp->set_name(pname);
+					pnewapp->set_id(pname);
+					pnewapp->set_version(pname);
+					pnewapp->set_size(pname);
+					pnewapp->set_location(path);
+					pnewapp->set_icodata(pname);
+				}
+				ss = ss.Mid(last+3,ss.GetLength() -(last+3));
+			}
+
+			int size = plist.ByteSize();
+			char* npOutString = (char *)npnfuncs->memalloc(size+ 1);
+			memset(npOutString,0x0,size+ 1);
+			if (!npOutString)
+			  return false;
+			plist.SerializeToArray(npOutString,size);
+			STRINGZ_TO_NPVARIANT(npOutString, *result);
+	}
+	if (!strcmp(name, kGetPictureList))
+	{
+			ret_val = true;
+	        CString ss = ExecuteExternalFile("c:\\adb.exe"," shell ls -lR /storage");
+			delete buf;
+
+			bigit::ResList plist;
+			int last = 0;
+			int first = 0;
+			int cout = 0;
+			for (int i = 0;ss.GetLength() > 2 ;i++)
+			{
+				last = ss.Find(CString("\x0d"));
+				
+				std::string picname = CString2String(ss.Mid(first+2,last));
+
+				int de = picname.find("jpg");
+				if(de  != std::string::npos)
+				{
+					bigit::ResInfo * pnewres = plist.add_res();
+					pnewres->set_author("author");
+					pnewres->set_createdate("author");
+					pnewres->set_duration("author");
+					pnewres->set_size("author");
+					pnewres->set_icodata("author");
+					pnewres->set_format("jpg");
+					pnewres->set_path(picname);
+				}
+
+				ss = ss.Mid(last+1,ss.GetLength() -(last+1));
+
+			}
+
+			int size = plist.ByteSize();
+			char* npOutString = (char *)npnfuncs->memalloc(size+ 1);
+			memset(npOutString,0x0,size+ 1);
+			if (!npOutString)
+			  return false;
+			plist.SerializeToArray(npOutString,size);
+			STRINGZ_TO_NPVARIANT(npOutString, *result);
+
+		
+	}
+
 	if (!strcmp(name, kGetDeviceInfo))
 	{
 			ret_val = true;
 	        CString ss = ExecuteExternalFile("c:\\adb.exe","shell cat /system/build.prop");
 			delete buf;
+
 			std::string pmodel = GetKeyValue(ss,CString("product.model="));
 			std::string pbrand = GetKeyValue(ss,CString("product.brand="));
 			std::string pname = GetKeyValue(ss,CString("product.name="));
@@ -295,16 +476,16 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
 			int first = pcpu.find("=");
 			pcpu = pcpu.substr(first+1,pcpu.size()-first-1);
 			bigit::DeviceInfo devinf;
-			devinf.set_brand(pbrand.c_str(),pbrand.size());
-			devinf.set_model(pmodel.c_str(),pmodel.size());
-			devinf.set_name(pname.c_str(),pname.size());
-			devinf.set_sn(psn.c_str(),psn.size());
-			devinf.set_cpu(pcpu.c_str(),pcpu.size());
-			devinf.set_imei(pname.c_str(),pname.size());
-			devinf.set_mac(pname.c_str(),pname.size());
+			devinf.set_brand(pbrand);
+			devinf.set_model(pmodel);
+			devinf.set_name(pname);
+			devinf.set_sn(psn);
+			devinf.set_cpu(pcpu);
+			devinf.set_imei(pname);
+			devinf.set_mac(pname);
 			int size = devinf.ByteSize();
 			char* npOutString = (char *)npnfuncs->memalloc(size+ 1);
-			memset(npOutString,0x0,size+ 1);
+			memset(npOutString,0x0,size + 1);
 			if (!npOutString)
 			  return false;
 			devinf.SerializeToArray(npOutString,size);
@@ -316,6 +497,7 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
 			ret_val = true;
 	        CString ss = ExecuteExternalFile("c:\\adb.exe"," shell busybox df -k | busybox grep storage_int");
 			delete buf;
+
 			ss = ss.Trim();
 			bigit::StorageInfo StorageInfo;
 			int first = 0;
@@ -323,6 +505,7 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
 			CString total = ss.Mid(first,last-first);
 			ss = ss.Right(ss.GetLength() - total.GetLength());
 			ss = ss.Trim();
+
 
 			first = 0;
 			last = ss.Find(CString(" "),first+2);
@@ -343,7 +526,7 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
 			//StorageInfo.set_u(used.c_str(),used.size());
 			int size = StorageInfo.ByteSize();
 			char* npOutString = (char *)npnfuncs->memalloc(size+ 1);
-			memset(npOutString,0x0,size+ 1);
+			memset(npOutString,0x0,size + 1);
 			if (!npOutString)
 			  return false;
 			StorageInfo.SerializeToArray(npOutString,size);
@@ -371,7 +554,7 @@ bool ScriptablePluginObject::Invoke(NPObject* obj, NPIdentifier methodName,
   if (!strcmp(name, kDoCommand)) 
   {
     ret_val = true;
-	CString ss = ExecuteExternalFile("c:\\adb.exe","");
+	CString ss = ExecuteExternalFile("c:\\adb.exe","shell ls  -l /storage/sdcard0/DCIM/Camera");
 	delete buf;
 	//获取宽字节字符的大小，大小是按字节计算的
 	int len = WideCharToMultiByte(CP_UTF8,0,ss,ss.GetLength(),NULL,0,NULL,NULL);

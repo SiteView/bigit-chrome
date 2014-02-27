@@ -89,8 +89,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\SiteviewAppManager\index.html" />
-    <None Include="..\..\SiteviewAppManager\manifest.json" />
+    <None Include="..\..\..\..\SiteviewAppManager\SiteviewAppManager\index.html" />
     <None Include="npsimple.def" />
   </ItemGroup>
   <ItemGroup>
