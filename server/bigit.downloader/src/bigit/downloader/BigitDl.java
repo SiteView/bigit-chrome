@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -40,7 +41,7 @@ public class BigitDl implements javax.servlet.Servlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		localDir = "d:\\cache";
+		localDir = "/var/tmp";
 		boolean ret = initApi();
 		System.out.println("bigit download servlet init:" + ret);
 	}
@@ -63,51 +64,55 @@ public class BigitDl implements javax.servlet.Servlet {
 		//数据库里有记录
 		if (filepath.length()>0) {
 			File f = new File(localDir + File.separator +filepath);
-			FileInputStream is = new FileInputStream(f);
-			httpres.setHeader("Content-Disposition", "attachment; filename="
-					+ pkg + ".apk");
-			httpres.setContentLength((int) f.length());
-			httpres.setContentType("application/vnd.android.package-archive");
-			OutputStream os = res.getOutputStream();
-			while ((b = is.read()) != -1) {
-				os.write(b);
+			//if (f.exists()){
+				URL url = AliyunOSSApi.downloadApk(pkg);
+				if (url!=null){
+					httpres.sendRedirect(url.toString());
+				
+				/*FileInputStream is = new FileInputStream(f);
+				httpres.setHeader("Content-Disposition", "attachment; filename="
+						+ pkg + ".apk");
+				httpres.setContentLength((int) f.length());
+				httpres.setContentType("application/vnd.android.package-archive");
+				OutputStream os = res.getOutputStream();
+				while ((b = is.read()) != -1) {
+					os.write(b);
+				}
+				os.flush();
+				*/
+				return ;
 			}
-			os.flush();
-		} else {
-			String strUrl = "http://package.1mobile.com/d.php?pkg=" + pkg
-					+ "&channel=304";
+		} 
+		{
 			
 			File fd = new File(localDir + File.separator +pkg.substring(0, 6) );
 			if (!fd.exists()) fd.mkdirs();
+			
 			filepath = pkg.substring(0, 6)+File.separator + pkg + ".apk";
 			File f = new File(localDir +File.separator +filepath);
+			File f2 = new File(f.getAbsolutePath()+".tmp");
+			FileOutputStream fos = new FileOutputStream(f2);
 			
-			CloseableHttpClient httpclient = HttpClients.createDefault();
+			ApkDownloader down = new ApkDownloader_wandoujia(pkg, httpres);
+	
+			down.addOtherOutputStream(fos);
 
-			HttpGet httpGet = new HttpGet(strUrl);
-			CloseableHttpResponse response1 = httpclient.execute(httpGet);
-			for (Header hd : response1.getAllHeaders()) {
-				System.out.println("header:[" + hd.getName() + "]=["
-						+ hd.getValue() + "]");
-				httpres.addHeader(hd.getName(), hd.getValue());
-			}
-			httpres.setHeader("Content-Disposition", "attachment; filename="
-					+ pkg + ".apk");
-			HttpEntity entity1 = response1.getEntity();
-			InputStream is = entity1.getContent();
+			boolean ret =down.run();
 			
-			FileOutputStream fos = new FileOutputStream(f);
-
-			OutputStream os = res.getOutputStream();
-			while ((b = is.read()) != -1) {
-				os.write(b);
-				fos.write(b);
-			}
-			os.flush();
 			fos.close();
+			
 			//更新到数据库
-			updateApkPath(pkg, filepath);
-			System.out.println("download done!");
+			if (ret){
+				if (f.exists())f.delete();
+				f2.renameTo(f);
+				//String[] vn = ApkTool.unZip(f.getAbsolutePath(), fd.getAbsolutePath()+File.separator+pkg+".png");
+				String[] vn = AaptTool.unZip(f.getAbsolutePath(), fd.getAbsolutePath()+File.separator+pkg+".png");
+				if (AliyunOSSApi.updateApk(pkg, f.getAbsolutePath(), vn[2], vn[0]))
+					updateApkPath(pkg, filepath,vn[2],vn[0]);
+				System.out.println("download done!");
+			}else{
+				f2.delete();
+			}
 		}
 	}
 
@@ -136,7 +141,7 @@ public class BigitDl implements javax.servlet.Servlet {
 	/*
 	 * update apk's path,if not exist,create new one.
 	 */
-	public boolean updateApkPath(String apkId, String path){
+	public boolean updateApkPath(String apkId, String path, String name, String version){
 		if (initApi()){
 			Siteview.thread.Thread.set_CurrentPrincipal(principal);
 			try{
@@ -146,10 +151,14 @@ public class BigitDl implements javax.servlet.Servlet {
 				BusinessObject bo = api.get_BusObService().GetBusinessObject(query);
 				if (bo!=null){
 					bo.GetField("AppLocation").SetValue(new SiteviewValue(path));
+					bo.GetField("AppTitle").SetValue(new SiteviewValue(name));
+					bo.GetField("AppVer").SetValue(new SiteviewValue(version));
 				}else{
 					bo = api.get_BusObService().Create("MobileApp");
 					bo.GetField("AppId").SetValue(new SiteviewValue(apkId));
 					bo.GetField("AppLocation").SetValue(new SiteviewValue(path));
+					bo.GetField("AppTitle").SetValue(new SiteviewValue(name));
+					bo.GetField("AppVer").SetValue(new SiteviewValue(version));
 				}
 				UpdateResult ur =bo.SaveObject(api, false, false);
 				if (!ur.get_Success()){

@@ -27,6 +27,9 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		System.setProperty("bigit.downloader.connection", "bigit");
+		System.setProperty("bigit.downloader.username", "admin");
+		System.setProperty("bigit.downloader.password", "manage");
 		plugin = this;
 	}
 
