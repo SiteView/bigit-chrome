@@ -1,3 +1,27 @@
-My Apps
-<a href="#/MyApps/com.tencent.qq">QQ</a>
-<button ng-click='delete()'>delete</button>
+My Apps<br>
+Search : <input type="text" class="search-query" ng-model="query">
+<table class='table table-striped table-hover'>
+	<thead>
+		<tr>
+			<th>App id</th>
+			<th>App name</th>
+			<th>App version</th>
+			<th>App size</th>
+			<th>App location</th>
+			<th>App Operate</th>
+		</tr>
+    </thead>
+    <tbody>
+		<tr ng-repeat='app in phoneManageService.appList |  filter:query'>
+			<td>{{app.id}}</td>
+			<td>{{app.name}}</td>
+			<td>{{app.version}}</td>
+			<td>{{app.size}}</td>
+			<td>{{app.location}}</td>
+			<td>
+				<button type="button" class="btn btn-default" ng-click='uninstall(app.id)'>uninstall</button>
+				<a href="#/MyApps/{{app.id}}" class="btn btn-default">Detail</a>
+			</td>
+		</tr>
+	</tbody>
+</table>

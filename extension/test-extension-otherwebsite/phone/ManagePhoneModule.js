@@ -1,28 +1,91 @@
-//该Service与 插件通讯 。
-angular.module('PhoneManageApp.services', [])
-    .factory('phoneManageService',function(){ //手机管理服务
-        var appCount = 10;
+// 插件
+var AppPluginServices = angular.module('AppPlugin.services', []);
+
+AppPluginServices.factory('appPluginService',function(){
+    var plugin = chrome.extension.getBackgroundPage(); //获取plugin
+    var getPlugin = function(){
+        return angular.element(plugin.document).find('body');
+    }
+    return {
+        'getPlugin':getPlugin
+    }
+});
+
+//该Service与 插件Service通讯 。
+angular.module('PhoneManageApp.services', ['AppPlugin.services'])
+    .factory('phoneManageService',['appPluginService',function(appPluginService){ //手机管理服务
+        var appPlugin = appPluginService.getPlugin();//app插件
+        
+        var appsCount = 0; //app数量
+        var appList = []; //app列表
+        var service = {};
         //获取App列表
-        var getAppList = function(){}
+        var getAppList = function(){
+            //appPlugin do some thing
+            return appList;
+        }
         //获取文件列表
-        var getFileList = function(){}
+        var getFileList = function(){
+            //appPlugin do some thing
+        }
         //获取App数量
         var getAppCount = function(){
-            return appCount;
+            // appPlugin do some thing
+            return appsCount;
         }
-        //
-        var setAppCount = function(num){
-            console.log('setAppCount' + num);
-            appCount = num;
+        //卸载app
+        var uninstall  = function(appId){
+            //模拟卸载arrayObject.splice(index,howmany
+            for(var index = 0; index < appList.length; index++ ){
+                var app = appList[index];
+                if(app.id == appId){
+                    appList.splice(index,1);
+                    break;
+                }
+            }
         }
-        //...  其他函数待定义
-        return {
+
+        var _init = function(){
+            appList = [
+                {
+                    "id":"1",
+                    "name":"app_1", 
+                    "version":"0.1", 
+                    "size":"100", 
+                    "location":"sdcard", 
+                    "icodata":"6"
+                },
+                {
+                    "id":"2",
+                    "name":"app_2", 
+                    "version":"0.1", 
+                    "size":"100", 
+                    "location":"sdcard", 
+                    "icodata":"6"
+                },
+                {
+                    "id":"3",
+                    "name":"app_3", 
+                    "version":"1.4", 
+                    "size":"100", 
+                    "location":"sdcard", 
+                    "icodata":"6"
+                }
+            ];
+            appsCount = appList.length;
+        }
+        _init();
+        service = {
             'getAppList':getAppList,
             'getFileList':getFileList,
             'getAppCount':getAppCount,
-            'setAppCount':setAppCount
+            'uninstall':uninstall,
+            'appsCount':appsCount,
+            'appList':appList
         }
-    })
+        //...  其他函数待定义
+        return service;
+    }])
     .factory('phoneConnectService',function(){ //手机状态服务
         //获取手机连接状态
         var getPhoneConnectStatus = function(){ 
@@ -41,10 +104,14 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
         '$scope',
         'phoneManageService',
         function($scope,phoneManageService) {
-            $scope.delete = function(){
-                console.log(123);
-                phoneManageService.setAppCount(phoneManageService.getAppCount()-1);
+            $scope.phoneManageService = phoneManageService;
+            $scope.uninstall = function(appId){
+                phoneManageService.uninstall(appId);
+                //模拟刷新数据
+                phoneManageService.appsCount = phoneManageService.getAppCount();
+                phoneManageService.appsList = phoneManageService.getAppList();
             } 
+
         }
     ]);
 
@@ -53,10 +120,10 @@ var SideNavModule = angular.module('SideNavModule',['PhoneManageApp.services','n
 SideNavModule.controller("SideNavModuleController",
 	[
 		'$scope',
-        'phoneManageService',
-        'navButtonActionService',
+        'phoneManageService', // PhoneManageApp services
+        'navButtonActionService',//self service
 		function($scope,phoneManageService,navButtonActionService) {
-        	$scope.appCounts = phoneManageService.getAppCount();
+        	$scope.phoneManageService = phoneManageService;
             $scope.changeNavStyle = navButtonActionService.changeNavStyle;
     	}
     ]);
