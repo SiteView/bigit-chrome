@@ -13,6 +13,7 @@
 #include <atlstr.h>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #endif
 // 接口定义
 const char *kDoCommand =    "DoCommand";
@@ -27,6 +28,7 @@ const char *kGetAddressBook = "GetAddressBook";//通信录
 const char *kGetSMSList = "GetSMSList"; // 短信列表
 const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
+const char *kDoTest = "DoTest"; // 卸载
 
 #define ADB_COMMAND_PATH  "c:\\adb.exe"
 
@@ -41,6 +43,11 @@ typedef SOCKET Socket;
 #else
 typedef int Socket;
 #endif
+
+   ofstream outdata; 
+
+
+
 
 void CloseSocket(Socket socket)
 {
@@ -260,7 +267,7 @@ std::string GetKeyValue(CString all, CString key)
     if(first < 1)
         return std::string("nofound");
     int last  = all.Find(CString("\x0d"), first);
-    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength() );
+    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength());
     std::string stdvatle =  CString2String(value);
     return  stdvatle;
 }
@@ -385,6 +392,20 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         return ret_val;
 
     }
+    if (!strcmp(name, kDoTest))
+    {
+		ret_val = true;
+		bigit::test tetsobj;
+		tetsobj.set_msg(std::string("testmsg"));
+		int size = tetsobj.ByteSize();
+        char *npOutString = (char *)npnfuncs->memalloc(size + 1);
+        memset(npOutString, 0x0, size + 1);
+        if (!npOutString)
+            return false;
+        tetsobj.SerializeToArray(npOutString, size);
+
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+	}
 
 #if 1
     if (!strcmp(name, kGetAppList))
@@ -397,20 +418,38 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         int first = 0;
         int cout = 0;
         char pname_[1000];
+		outdata.open("c:\\out.dat");
+		if(!outdata)
+		{
+			//cout<<"can not open the file :out.dat"<<endl;
+			return  false;
+		}
+	/*	std::string str = CString2String(ss);
+
+		       char *npOutString = (char *)npnfuncs->memalloc(str.size() + 1);
+        if (!npOutString)
+            return false;
+        strcpy(npOutString, str.c_str());*/
+
+
+  //      STRINGZ_TO_NPVARIANT(npOutString, *result);
+		std::string pname;
+
+		std::string all;
 
         for (int i = 0; ss.GetLength() > 2 ; i++)
         {
             last = ss.Find(CString("\x0d\x0d\0a")); // 行结束
 
-            std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
+           std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
 
             string::size_type de = ssline.find("=");  //等号后为软件名
 
             if(de  != std::string::npos)
-            {
-                std::string pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
+          {
+                 pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
 
-               // std::string path = ssline.substr(8, de - 1); //path
+              // std::string path = ssline.substr(8, de - 1); //path
 
                 sprintf(pname_, "shell dumpsys package %s", pname.c_str());
 
@@ -428,16 +467,22 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                 pnewapp->set_size(pname);
                 pnewapp->set_location(resourcePath);
                 pnewapp->set_icodata(pname);
+				all = all+pname+pversionname+resourcePath;
+				outdata <<  pname  << " "<< pversionname << " "<< resourcePath << endl;
             }
             ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
         }
-
         int size = plist.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
         if (!npOutString)
             return false;
-        plist.SerializeToArray(npOutString, size);
+      //  plist.SerializeToString(npOutString, size);
+		std::string aProtocolBuffer;
+		plist.SerializeToString(&aProtocolBuffer);
+		strcpy(npOutString, aProtocolBuffer.c_str());
+		outdata<<aProtocolBuffer;
+		outdata.close();
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetPictureList))
