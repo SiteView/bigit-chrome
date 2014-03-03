@@ -86,4 +86,8 @@ message SMSList {
   repeated SMSInfo sms = 1;
  
 }
+message test
+{
+ required string msg = 1;
+}
 

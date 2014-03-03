@@ -45,6 +45,7 @@ class Person_PhoneNumber;
 class AddressBook;
 class SMSInfo;
 class SMSList;
+class test;
 
 enum Person_PhoneType {
   Person_PhoneType_MOBILE = 0,
@@ -342,20 +343,35 @@ class StorageInfo : public ::google::protobuf::Message {
   inline ::std::string* release_free();
   inline void set_allocated_free(::std::string* free);
 
+  // required string used = 3;
+  inline bool has_used() const;
+  inline void clear_used();
+  static const int kUsedFieldNumber = 3;
+  inline const ::std::string& used() const;
+  inline void set_used(const ::std::string& value);
+  inline void set_used(const char* value);
+  inline void set_used(const char* value, size_t size);
+  inline ::std::string* mutable_used();
+  inline ::std::string* release_used();
+  inline void set_allocated_used(::std::string* used);
+
   // @@protoc_insertion_point(class_scope:bigit.StorageInfo)
  private:
   inline void set_has_total();
   inline void clear_has_total();
   inline void set_has_free();
   inline void clear_has_free();
+  inline void set_has_used();
+  inline void clear_has_used();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* total_;
   ::std::string* free_;
+  ::std::string* used_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_phone_2eproto();
   friend void protobuf_AssignDesc_phone_2eproto();
@@ -1435,6 +1451,93 @@ class SMSList : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static SMSList* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class test : public ::google::protobuf::Message {
+ public:
+  test();
+  virtual ~test();
+
+  test(const test& from);
+
+  inline test& operator=(const test& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const test& default_instance();
+
+  void Swap(test* other);
+
+  // implements Message ----------------------------------------------
+
+  test* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const test& from);
+  void MergeFrom(const test& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string msg = 1;
+  inline bool has_msg() const;
+  inline void clear_msg();
+  static const int kMsgFieldNumber = 1;
+  inline const ::std::string& msg() const;
+  inline void set_msg(const ::std::string& value);
+  inline void set_msg(const char* value);
+  inline void set_msg(const char* value, size_t size);
+  inline ::std::string* mutable_msg();
+  inline ::std::string* release_msg();
+  inline void set_allocated_msg(::std::string* msg);
+
+  // @@protoc_insertion_point(class_scope:bigit.test)
+ private:
+  inline void set_has_msg();
+  inline void clear_has_msg();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* msg_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_phone_2eproto();
+  friend void protobuf_AssignDesc_phone_2eproto();
+  friend void protobuf_ShutdownFile_phone_2eproto();
+
+  void InitAsDefaultInstance();
+  static test* default_instance_;
+};
 // ===================================================================
 
 
@@ -2073,6 +2176,76 @@ inline void StorageInfo::set_allocated_free(::std::string* free) {
   } else {
     clear_has_free();
     free_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string used = 3;
+inline bool StorageInfo::has_used() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void StorageInfo::set_has_used() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void StorageInfo::clear_has_used() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void StorageInfo::clear_used() {
+  if (used_ != &::google::protobuf::internal::kEmptyString) {
+    used_->clear();
+  }
+  clear_has_used();
+}
+inline const ::std::string& StorageInfo::used() const {
+  return *used_;
+}
+inline void StorageInfo::set_used(const ::std::string& value) {
+  set_has_used();
+  if (used_ == &::google::protobuf::internal::kEmptyString) {
+    used_ = new ::std::string;
+  }
+  used_->assign(value);
+}
+inline void StorageInfo::set_used(const char* value) {
+  set_has_used();
+  if (used_ == &::google::protobuf::internal::kEmptyString) {
+    used_ = new ::std::string;
+  }
+  used_->assign(value);
+}
+inline void StorageInfo::set_used(const char* value, size_t size) {
+  set_has_used();
+  if (used_ == &::google::protobuf::internal::kEmptyString) {
+    used_ = new ::std::string;
+  }
+  used_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* StorageInfo::mutable_used() {
+  set_has_used();
+  if (used_ == &::google::protobuf::internal::kEmptyString) {
+    used_ = new ::std::string;
+  }
+  return used_;
+}
+inline ::std::string* StorageInfo::release_used() {
+  clear_has_used();
+  if (used_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = used_;
+    used_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void StorageInfo::set_allocated_used(::std::string* used) {
+  if (used_ != &::google::protobuf::internal::kEmptyString) {
+    delete used_;
+  }
+  if (used) {
+    set_has_used();
+    used_ = used;
+  } else {
+    clear_has_used();
+    used_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
 }
 
@@ -3585,6 +3758,80 @@ SMSList::sms() const {
 inline ::google::protobuf::RepeatedPtrField< ::bigit::SMSInfo >*
 SMSList::mutable_sms() {
   return &sms_;
+}
+
+// -------------------------------------------------------------------
+
+// test
+
+// required string msg = 1;
+inline bool test::has_msg() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void test::set_has_msg() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void test::clear_has_msg() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void test::clear_msg() {
+  if (msg_ != &::google::protobuf::internal::kEmptyString) {
+    msg_->clear();
+  }
+  clear_has_msg();
+}
+inline const ::std::string& test::msg() const {
+  return *msg_;
+}
+inline void test::set_msg(const ::std::string& value) {
+  set_has_msg();
+  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+    msg_ = new ::std::string;
+  }
+  msg_->assign(value);
+}
+inline void test::set_msg(const char* value) {
+  set_has_msg();
+  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+    msg_ = new ::std::string;
+  }
+  msg_->assign(value);
+}
+inline void test::set_msg(const char* value, size_t size) {
+  set_has_msg();
+  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+    msg_ = new ::std::string;
+  }
+  msg_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* test::mutable_msg() {
+  set_has_msg();
+  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+    msg_ = new ::std::string;
+  }
+  return msg_;
+}
+inline ::std::string* test::release_msg() {
+  clear_has_msg();
+  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = msg_;
+    msg_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void test::set_allocated_msg(::std::string* msg) {
+  if (msg_ != &::google::protobuf::internal::kEmptyString) {
+    delete msg_;
+  }
+  if (msg) {
+    set_has_msg();
+    msg_ = msg;
+  } else {
+    clear_has_msg();
+    msg_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 
