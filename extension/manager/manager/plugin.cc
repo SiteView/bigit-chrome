@@ -255,12 +255,12 @@ void clean_string(char *str)
 
 std::string GetKeyValue(CString all, CString key)
 {
-    all = all.Trim();
+  //  all = all.Trim();
     int first = all.Find(key);
     if(first < 1)
-        return std::string("");
+        return std::string("nofound");
     int last  = all.Find(CString("\x0d"), first);
-    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength() - 1);
+    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength() );
     std::string stdvatle =  CString2String(value);
     return  stdvatle;
 }
@@ -299,8 +299,8 @@ CString ExecuteExternalFile(CString csExeName, CString csArguments)
     CloseHandle(wPipe);
 
     //now read the output pipe here.
-    char buf[1000];
-    memset(buf, 0x0, 1000);
+    char buf[10240];
+    memset(buf, 0x0, 10240);
     DWORD reDword;
     CString m_csOutput, csTemp;
     BOOL res;
@@ -400,28 +400,33 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
 
         for (int i = 0; ss.GetLength() > 2 ; i++)
         {
-            last = ss.Find(CString("\x0d")); // 行结束
+            last = ss.Find(CString("\x0d\x0d\0a")); // 行结束
 
             std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
 
-            int de = ssline.find("=");  //等号后为软件名
+            string::size_type de = ssline.find("=");  //等号后为软件名
 
             if(de  != std::string::npos)
             {
-                std::string pname = ssline.substr(de + 1, ssline.size() - 1); //name
+                std::string pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
 
-                std::string path = ssline.substr(8, de - 1); //path
+               // std::string path = ssline.substr(8, de - 1); //path
 
                 sprintf(pname_, "shell dumpsys package %s", pname.c_str());
 
                 CString sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  详细信息
 
+				std::string pversionname = GetKeyValue(sub, CString("versionName="));
+
+				std::string resourcePath =  GetKeyValue(sub, CString("resourcePath="));
+
                 bigit::AppInfo *pnewapp = plist.add_app();
+
                 pnewapp->set_name(pname);
                 pnewapp->set_id(pname);
-                pnewapp->set_version(pname);
+                pnewapp->set_version(pversionname);
                 pnewapp->set_size(pname);
-                pnewapp->set_location(path);
+                pnewapp->set_location(resourcePath);
                 pnewapp->set_icodata(pname);
             }
             ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
@@ -463,9 +468,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                 pnewres->set_format("jpg");
                 pnewres->set_path(picname);
             }
-
             ss = ss.Mid(last + 1, ss.GetLength() - (last + 1));
-
         }
 
         int size = plist.ByteSize();
@@ -490,10 +493,18 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         std::string pname = GetKeyValue(ss, CString("product.name="));
         std::string pcpu = GetKeyValue(ss, CString("product.cpu"));
 
-        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell getprop ro.serialno");
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell getprop ro.serialno"); // 获取sn
         ss = ss.Trim();
 
         std::string psn = CString2String(ss);
+
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell dumpsys iphonesubinfo"); // 获取imei 号
+
+        std::string imei = GetKeyValue(ss,CString("Device ID = "));
+
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /sys/class/net/wlan0/address"); // 获取mac地址
+
+		std::string pmac = CString2String(ss);
 
         int first = pcpu.find("=");
         pcpu = pcpu.substr(first + 1, pcpu.size() - first - 1);
@@ -503,8 +514,8 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         devinf.set_name(pname);
         devinf.set_sn(psn);
         devinf.set_cpu(pcpu);
-        devinf.set_imei(pname);
-        devinf.set_mac(pname);
+        devinf.set_imei(imei);
+        devinf.set_mac(pmac);
         int size = devinf.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
