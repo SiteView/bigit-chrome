@@ -84,3 +84,7 @@ message SMSList {
  
 }
 
+message test
+{
+ required string msg = 1;
+}

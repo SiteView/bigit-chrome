@@ -13,17 +13,24 @@ AppPluginServices.factory('appPluginService',function(){
     var testPlugin = function(){
     // console.log( plugin.GetDeviceInfo("shell ls   /storage/sdcard0").toString());
     var AppListMessage = PhoneProtoBuilder.build('bigit');
-    /*
-    var message = plugin.GetDeviceInfo('');
+   
+   // var message = plugin.DoTest('');
+  // var message = plugin.GetDeviceInfo('');
+   var message = plugin.GetAppList('');
+
        console.log('message is:');
         console.log(message);
        console.log('builder is: ');
-
-        var msg = AppListMessage.DeviceInfo.decode(message);
+       console.log(encodeURIComponent(message))
+       return;
+       message = btoa(encodeURIComponent(message));
+       var msg = AppListMessage.AppList.decode64(message);
+    //    var msg = AppListMessage.test.decode64(message);
+   //var msg = AppListMessage.DeviceInfo.decode64(message);
        console.log('decode message  is:');
          console.log(msg);
     }
-    */
+    /* */
     return {
         'testPlugin':testPlugin,
         'getPlugin':getPlugin
