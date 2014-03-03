@@ -20,7 +20,8 @@ Search : <input type="text" class="search-query" ng-model="query">
 			<td>{{app.location}}</td>
 			<td>
 				<button type="button" class="btn btn-default" ng-click='uninstall(app.id)'>uninstall</button>
-				<a href="#/MyApps/{{app.id}}" class="btn btn-default">Detail</a>
+				<!--<button type="button" class="btn btn-default" ng-click='uninstall(app.id)'>Detail</button>href="#/MyApps/AppDetails/{{app.id}}"-->
+				<a  ng-href="/ManagePhone.html#/MyApps/AppDetails/{{app.id}}" class="btn btn-default">Detail</a>
 			</td>
 		</tr>
 	</tbody>

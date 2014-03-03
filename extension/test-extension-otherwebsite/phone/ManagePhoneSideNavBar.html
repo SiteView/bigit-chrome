@@ -1,11 +1,12 @@
 <div class="phone-status" ng-controller="PhoneConnectStatusModuleCtrl">
     Phone status: {{status | checkPhoneConnectStatus}}
 </div>
+<div style='display:hidden' ng-controller='AppsManagerModuleCtrl'></div>
 <ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
 	<li ng-click="changeNavStyle($event)" class="active"><a href="#">Welcome to BIGIT</a></li>
 	<li ng-click="changeNavStyle($event)"><a href="#">App Store</a></li>
 	<li ng-click="changeNavStyle($event)">
-		<a href="#/MyApps/all">
+		<a href="#/MyApps/AppList">
 			<span class="badge pull-right">{{phoneManageService.appsCount}}</span>
 			My App
 		</a>
