@@ -11,6 +11,9 @@
         "default_title": "BIGIT手机助手",
         "default_popup": "popup.html"
     },
+     "plugins":[
+        {"path":"manager.dll","public":true}
+    ],
     "icons": {
       "16": "assets/images/icon_16.png",
       "48": "assets/images/icon_48.png",

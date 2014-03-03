@@ -2,11 +2,30 @@
 var AppPluginServices = angular.module('AppPlugin.services', []);
 
 AppPluginServices.factory('appPluginService',function(){
-    var plugin = chrome.extension.getBackgroundPage(); //获取plugin
+    var plugin = chrome.extension.getBackgroundPage().document.getElementById("AppPlugin"); //获取plugin
     var getPlugin = function(){
-        return angular.element(plugin.document).find('body');
+        return plugin;
     }
+    // Initialize ProtoBuf.js
+    var ProtoBuf = dcodeIO.ProtoBuf;
+    var PhoneProtoBuilder = ProtoBuf.loadProtoFile("phone/phone.proto");
+   
+    var testPlugin = function(){
+    // console.log( plugin.GetDeviceInfo("shell ls   /storage/sdcard0").toString());
+    var AppListMessage = PhoneProtoBuilder.build('bigit');
+    /*
+    var message = plugin.GetDeviceInfo('');
+       console.log('message is:');
+        console.log(message);
+       console.log('builder is: ');
+
+        var msg = AppListMessage.DeviceInfo.decode(message);
+       console.log('decode message  is:');
+         console.log(msg);
+    }
+    */
     return {
+        'testPlugin':testPlugin,
         'getPlugin':getPlugin
     }
 });
@@ -46,6 +65,7 @@ angular.module('PhoneManageApp.services', ['AppPlugin.services'])
         }
 
         var _init = function(){
+            appPluginService.testPlugin();
             appList = [
                 {
                     "id":"1",
