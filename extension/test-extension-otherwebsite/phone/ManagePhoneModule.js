@@ -6,7 +6,17 @@ PluginServices.factory('appPluginService',function(){
     // Initialize ProtoBuf.js
     var ProtoBuf = dcodeIO.ProtoBuf;
     var PhoneProtoBuilder = ProtoBuf.loadProtoFile("phone/phone.proto").build('bigit');
-    return {}
+    var getAppList = function(){
+        var message = plugin.GetAppList('');
+        console.log(encodeURI(message.replace(/\r\n/g,"\n")));
+        message = btoa(encodeURI(message.replace(/\r\n/g,"\n")));
+        PhoneProtoBuilder.AppList.decode64(message);
+        return message;
+    }
+
+    return {
+        'getAppList':getAppList
+    }
 });
 //管理手机基本信息相关
 PluginServices.factory('basicPluginService',function(){
@@ -37,8 +47,8 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
         var service = {};
         //获取App列表
         var getAppList = function(){
-            //appPlugin do some thing
-           // appPluginService.testPlugin();  //    Test  ----------
+            var list = $appPluginService.getAppList();  //    Test  ----------
+            console.log(list);
             return appList;
         }
         //获取App数量
@@ -213,6 +223,7 @@ SideNavModule.controller("SideNavModuleController",
         'phoneManageAppService', // PhoneManage services
         function($scope,$location,$phoneManageAppService) {
             $scope.phoneManageAppService = $phoneManageAppService;
+            //根据路径判断当前侧边栏选中项
             $scope.isActive =function(viewLocation){
                 return viewLocation == $location.path();
             }
@@ -283,3 +294,8 @@ $(function(){
     }
     setTimeout(__init,1000);
 });
+
+function testAppList(){
+    var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
+    scope.phoneManageAppService.getAppList();
+}
