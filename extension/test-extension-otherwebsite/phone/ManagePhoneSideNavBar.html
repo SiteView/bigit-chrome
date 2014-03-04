@@ -8,18 +8,18 @@
 </div>
 <div style='display:hidden' ng-controller='AppsManagerModuleCtrl'></div>
 <ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
-	<li ng-click="changeNavStyle($event)" class="active"><a href="#">Welcome to BIGIT</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#">App Store</a></li>
-	<li ng-click="changeNavStyle($event)">
+	<li ng-class="{active: isActive('/')}"><a href="#/">Welcome to BIGIT</a></li>
+	<li><a href="#">App Store</a></li>
+	<li ng-class="{active: isActive('/MyApps/AppList')}">
 		<a href="#/MyApps/AppList">
 			<span class="badge pull-right">{{phoneManageAppService.appsCount}}</span>
 			My App
 		</a>
 	</li>
-	<li ng-click="changeNavStyle($event)"><a href="#">My Contacts</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#">My Music</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#">My Picture</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#">My Video</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#">My Sms</a></li>
-	<li ng-click="changeNavStyle($event)"><a href="#/MyFiles">My Files</a></li>
+	<li><a href="#">My Contacts</a></li>
+	<li><a href="#">My Music</a></li>
+	<li><a href="#">My Picture</a></li>
+	<li><a href="#">My Video</a></li>
+	<li><a href="#">My Sms</a></li>
+	<li ng-class="{active: isActive('/MyFiles')}"><a href="#/MyFiles">My Files</a></li>
 </ul>

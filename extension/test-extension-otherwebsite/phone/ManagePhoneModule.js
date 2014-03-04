@@ -63,9 +63,15 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
                 var app = appList[index];
                 if(app.id == appId){
                     appList.splice(index,1);
+                    service.appsCount = appList.length;//更新 值域
                     break;
                 }
             }
+        }
+        //刷新AppList
+        var refreshAppList = function(){
+            service.appList = getAppList();
+            service.appsCount = service.appList.length;
         }
         //测试添加
         var addTest = function(){
@@ -77,6 +83,7 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
                 "location":"sdcard", 
                 "icodata":"6"
             });
+            service.appsCount = appList.length;//更新 值域
         }
 
         var _init = function(){
@@ -109,6 +116,7 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
         }
         _init();
         service = {
+            'refreshAppList':refreshAppList,
             'getAppList':getAppList,
             'getAppDetail':getAppDetail,
             'getAppCount':getAppCount,
@@ -176,22 +184,18 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
         'phoneManageAppService',
         function($scope,$routeParams,$phoneManageAppService) {
             var refreshAppList = function(){
-                //模拟刷新数据
-                $scope.$apply(function(){
-                    $phoneManageAppService.appsList = $phoneManageAppService.getAppList();
-                    $phoneManageAppService.appsCount = $phoneManageAppService.appsList.length;
-                });
+                
             }
             $scope.phoneManageAppService = $phoneManageAppService;
             $scope.uninstall = function(appId){
                 $phoneManageAppService.uninstall(appId);
-               // refreshAppList();
             };
             //刷新
             $scope.refreshAppList = function(){
+                //刷新Apps数据
+               // $phoneManageAppService.refreshAppList();
                 // 测试
                 $phoneManageAppService.addTest();
-                refreshAppList();
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
@@ -205,22 +209,16 @@ var SideNavModule = angular.module('SideNavModule', ['ngRoute','PhoneManage.serv
 SideNavModule.controller("SideNavModuleController",
     [
         '$scope',
+        '$location',
         'phoneManageAppService', // PhoneManage services
-        'navButtonActionService',//self service
-        function($scope,$phoneManageAppService,$navButtonActionService) {
+        function($scope,$location,$phoneManageAppService) {
             $scope.phoneManageAppService = $phoneManageAppService;
-            $scope.changeNavStyle = $navButtonActionService.changeNavStyle;
+            $scope.isActive =function(viewLocation){
+                return viewLocation == $location.path();
+            }
         }
     ]);
 
-//侧边导航栏点击事件 处理
-SideNavModule.factory('navButtonActionService',function(){ 
-    var changeNavStyle = function(e){
-        $(e.currentTarget).parent().find(".active").removeClass('active');
-        $(e.currentTarget).addClass('active');
-    }
-    return {'changeNavStyle':changeNavStyle};
-});
 //路由功能
 SideNavModule.config(['$compileProvider','$routeProvider',
   function($compileProvider,$routeProvider) {
