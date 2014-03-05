@@ -86,4 +86,16 @@ message SMSList {
   repeated SMSInfo sms = 1;
  
 }
+message testobj
+{
+ required string name = 1;
+}
+message test
+{
+ repeated string msg = 1;
+}
 
+message testlist
+{
+ repeated testobj obj = 1;
+}

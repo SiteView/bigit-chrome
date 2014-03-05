@@ -1,4 +1,4 @@
-LIBRARY   npsimple.dll
+LIBRARY   manager.dll
 
 EXPORTS
 	NP_GetEntryPoints     @1

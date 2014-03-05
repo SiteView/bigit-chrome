@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\SiteviewAppManager\SiteviewAppManager\plugin</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>--enable-nacl --enable-nacl-debug --disable-hang-monitor </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>..\..\..\..\SiteviewAppManager\SiteviewAppManager\plugin</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>--plugin-startup-dialog --wait-for-debugger  file:///D:/SiteviewAppManager/SiteviewAppManager/index.html</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

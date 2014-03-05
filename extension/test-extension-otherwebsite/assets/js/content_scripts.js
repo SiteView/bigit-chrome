@@ -33,6 +33,7 @@ function __getAppDetailInfo(){
 
 function __downloadButtonListener(){
 	console.log("download");
+	console.log(__getAppDetailInfo())
 	chrome.runtime.sendMessage({}, function(response) {
   		console.log(response.farewell);
 	});

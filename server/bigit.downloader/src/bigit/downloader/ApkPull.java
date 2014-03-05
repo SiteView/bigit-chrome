@@ -3,6 +3,7 @@ package bigit.downloader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -21,6 +22,7 @@ import org.apache.http.protocol.HttpContext;
 
 public class ApkPull {
 	public static final String LAST_REDIRECT_URL = "last_redirect_url";
+	
 	public static void main(String[] argv) {
 		int b;
 		String strUrl = "http://down.mumayi.com/%s";

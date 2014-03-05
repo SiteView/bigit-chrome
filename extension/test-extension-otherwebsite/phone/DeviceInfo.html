@@ -1,0 +1,6 @@
+<div  ng-show="phoneBasicService.DeviceInfo">
+	{{phoneBasicService.DeviceInfo.model}}
+</div>
+<div  ng-hide="phoneBasicService.DeviceInfo">
+    	Phone status: {{phoneBasicService.DeviceInfo | checkPhoneConnectStatus}}
+</div>

@@ -78,3 +78,19 @@ adb
 ```shell
 emulator-arm -avd avd_name
 ```
+
+### Plugin API
+```c
+const char *kDoCommand =    "DoCommand";
+const char *kAaptCommand =  "AaptCommand";
+const char *kGetDeviceInfo = "GetDeviceInfo";
+const char *kGetStorageInfo = "GetStorageInfo";
+const char *kGetAppList = "GetAppList";
+const char *kGetPictureList = "GetPictureList";
+const char *kGetVideoList = "GetVideoList";
+const char *kGetMusicList = "GetMusicList"; //
+const char *kGetAddressBook = "GetAddressBook";//通信录
+const char *kGetSMSList = "GetSMSList"; // 短信列表
+const char *kDoInstall = "DoInstall"; // 安装
+const char *kDoUninstall = "DoUninstall"; // 卸载
+```

@@ -1,0 +1,25 @@
+<div class="phone-status" ng-controller="PhoneMangeConnectStatusCtrl">
+    <div  ng-show="phoneBasicService.DeviceInfo">
+      	{{phoneBasicService.DeviceInfo.model}}
+    </div>
+    <div  ng-hide="phoneBasicService.DeviceInfo">
+        	Phone status: {{phoneBasicService.DeviceInfo | checkPhoneConnectStatus}}
+    </div>
+</div>
+<div style='display:hidden' ng-controller='AppsManagerModuleCtrl'></div>
+<ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
+	<li ng-class="{active: isActive('/')}"><a href="#/">Welcome to BIGIT</a></li>
+	<li><a href="#">App Store</a></li>
+	<li ng-class="{active: isActive('/MyApps/AppList')}">
+		<a href="#/MyApps/AppList">
+			<span class="badge pull-right">{{phoneManageAppService.appsCount}}</span>
+			My App
+		</a>
+	</li>
+	<li><a href="#">My Contacts</a></li>
+	<li><a href="#">My Music</a></li>
+	<li><a href="#">My Picture</a></li>
+	<li><a href="#">My Video</a></li>
+	<li><a href="#">My Sms</a></li>
+	<li ng-class="{active: isActive('/MyFiles')}"><a href="#/MyFiles">My Files</a></li>
+</ul>

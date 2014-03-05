@@ -14,7 +14,7 @@
  *
  * The Original Code is mozilla.org code.
  *
- * The Initial Developer of the Original Code is 
+ * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998
  * the Initial Developer. All Rights Reserved.
@@ -22,7 +22,7 @@
  * Contributor(s):
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
@@ -43,46 +43,48 @@
 #include "npruntime.h"
 #include "npfunctions.h"
 
-extern NPNetscapeFuncs* npnfuncs;
+extern NPNetscapeFuncs *npnfuncs;
 
-class ScriptablePluginObject: NPObject {
+class ScriptablePluginObject: NPObject
+{
 public:
-  ScriptablePluginObject(NPP instance);
-  static NPObject* Allocate(NPP instance, NPClass* npclass);
-  static void Deallocate(NPObject* obj);
-  static bool HasMethod(NPObject* obj, NPIdentifier methodName);
-  static bool InvokeDefault(NPObject* obj, const NPVariant* args,
-                            uint32_t argCount, NPVariant* result);
-  static bool Invoke(NPObject* obj, NPIdentifier methodName,
-                     const NPVariant* args, uint32_t argCount,
-                     NPVariant* result);
-  static bool HasProperty(NPObject* obj, NPIdentifier propertyName);
-  static bool GetProperty(NPObject* obj, NPIdentifier propertyName,
-                          NPVariant* result);
-  std::string ScriptablePluginObject::devices();
+    ScriptablePluginObject(NPP instance);
+    static NPObject *Allocate(NPP instance, NPClass *npclass);
+    static void Deallocate(NPObject *obj);
+    static bool HasMethod(NPObject *obj, NPIdentifier methodName);
+    static bool InvokeDefault(NPObject *obj, const NPVariant *args,
+                              uint32_t argCount, NPVariant *result);
+    static bool Invoke(NPObject *obj, NPIdentifier methodName,
+                       const NPVariant *args, uint32_t argCount,
+                       NPVariant *result);
+    static bool HasProperty(NPObject *obj, NPIdentifier propertyName);
+    static bool GetProperty(NPObject *obj, NPIdentifier propertyName,
+                            NPVariant *result);
+    static  std::string ScriptablePluginObject::devices();
 
-  NPP npp;
+    NPP npp;
 };
 
-class CPlugin {
+class CPlugin
+{
 private:
-  NPP m_pNPInstance;
-  NPWindow * m_Window;
-  NPBool m_bInitialized;
-  ScriptablePluginObject *m_pScriptableObject;
+    NPP m_pNPInstance;
+    NPWindow *m_Window;
+    NPBool m_bInitialized;
+    ScriptablePluginObject *m_pScriptableObject;
 #ifdef _WINDOWS
-  HWND m_hWnd; 
+    HWND m_hWnd;
 #endif
 
 public:
-  CPlugin(NPP pNPInstance);
-  ~CPlugin();
+    CPlugin(NPP pNPInstance);
+    ~CPlugin();
 
-  NPBool init(NPWindow* pNPWindow);
-  NPBool isInitialized();
-  ScriptablePluginObject *GetScriptableObject();
+    NPBool init(NPWindow *pNPWindow);
+    NPBool isInitialized();
+    ScriptablePluginObject *GetScriptableObject();
 #ifdef _WINDOWS
-  HWND GetHWnd(); 
+    HWND GetHWnd();
 #endif
 };
 
