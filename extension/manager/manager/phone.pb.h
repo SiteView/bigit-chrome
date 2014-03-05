@@ -45,7 +45,9 @@ class Person_PhoneNumber;
 class AddressBook;
 class SMSInfo;
 class SMSList;
+class testobj;
 class test;
+class testlist;
 
 enum Person_PhoneType {
   Person_PhoneType_MOBILE = 0,
@@ -1453,6 +1455,93 @@ class SMSList : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class testobj : public ::google::protobuf::Message {
+ public:
+  testobj();
+  virtual ~testobj();
+
+  testobj(const testobj& from);
+
+  inline testobj& operator=(const testobj& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const testobj& default_instance();
+
+  void Swap(testobj* other);
+
+  // implements Message ----------------------------------------------
+
+  testobj* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const testobj& from);
+  void MergeFrom(const testobj& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string name = 1;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 1;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // @@protoc_insertion_point(class_scope:bigit.testobj)
+ private:
+  inline void set_has_name();
+  inline void clear_has_name();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* name_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_phone_2eproto();
+  friend void protobuf_AssignDesc_phone_2eproto();
+  friend void protobuf_ShutdownFile_phone_2eproto();
+
+  void InitAsDefaultInstance();
+  static testobj* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class test : public ::google::protobuf::Message {
  public:
   test();
@@ -1507,26 +1596,28 @@ class test : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required string msg = 1;
-  inline bool has_msg() const;
+  // repeated string msg = 1;
+  inline int msg_size() const;
   inline void clear_msg();
   static const int kMsgFieldNumber = 1;
-  inline const ::std::string& msg() const;
-  inline void set_msg(const ::std::string& value);
-  inline void set_msg(const char* value);
-  inline void set_msg(const char* value, size_t size);
-  inline ::std::string* mutable_msg();
-  inline ::std::string* release_msg();
-  inline void set_allocated_msg(::std::string* msg);
+  inline const ::std::string& msg(int index) const;
+  inline ::std::string* mutable_msg(int index);
+  inline void set_msg(int index, const ::std::string& value);
+  inline void set_msg(int index, const char* value);
+  inline void set_msg(int index, const char* value, size_t size);
+  inline ::std::string* add_msg();
+  inline void add_msg(const ::std::string& value);
+  inline void add_msg(const char* value);
+  inline void add_msg(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& msg() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_msg();
 
   // @@protoc_insertion_point(class_scope:bigit.test)
  private:
-  inline void set_has_msg();
-  inline void clear_has_msg();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::std::string* msg_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> msg_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
@@ -1537,6 +1628,91 @@ class test : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static test* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class testlist : public ::google::protobuf::Message {
+ public:
+  testlist();
+  virtual ~testlist();
+
+  testlist(const testlist& from);
+
+  inline testlist& operator=(const testlist& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const testlist& default_instance();
+
+  void Swap(testlist* other);
+
+  // implements Message ----------------------------------------------
+
+  testlist* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const testlist& from);
+  void MergeFrom(const testlist& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bigit.testobj obj = 1;
+  inline int obj_size() const;
+  inline void clear_obj();
+  static const int kObjFieldNumber = 1;
+  inline const ::bigit::testobj& obj(int index) const;
+  inline ::bigit::testobj* mutable_obj(int index);
+  inline ::bigit::testobj* add_obj();
+  inline const ::google::protobuf::RepeatedPtrField< ::bigit::testobj >&
+      obj() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bigit::testobj >*
+      mutable_obj();
+
+  // @@protoc_insertion_point(class_scope:bigit.testlist)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::RepeatedPtrField< ::bigit::testobj > obj_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_phone_2eproto();
+  friend void protobuf_AssignDesc_phone_2eproto();
+  friend void protobuf_ShutdownFile_phone_2eproto();
+
+  void InitAsDefaultInstance();
+  static testlist* default_instance_;
 };
 // ===================================================================
 
@@ -3762,76 +3938,153 @@ SMSList::mutable_sms() {
 
 // -------------------------------------------------------------------
 
-// test
+// testobj
 
-// required string msg = 1;
-inline bool test::has_msg() const {
+// required string name = 1;
+inline bool testobj::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void test::set_has_msg() {
+inline void testobj::set_has_name() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void test::clear_has_msg() {
+inline void testobj::clear_has_name() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void test::clear_msg() {
-  if (msg_ != &::google::protobuf::internal::kEmptyString) {
-    msg_->clear();
+inline void testobj::clear_name() {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    name_->clear();
   }
-  clear_has_msg();
+  clear_has_name();
 }
-inline const ::std::string& test::msg() const {
-  return *msg_;
+inline const ::std::string& testobj::name() const {
+  return *name_;
 }
-inline void test::set_msg(const ::std::string& value) {
-  set_has_msg();
-  if (msg_ == &::google::protobuf::internal::kEmptyString) {
-    msg_ = new ::std::string;
+inline void testobj::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
   }
-  msg_->assign(value);
+  name_->assign(value);
 }
-inline void test::set_msg(const char* value) {
-  set_has_msg();
-  if (msg_ == &::google::protobuf::internal::kEmptyString) {
-    msg_ = new ::std::string;
+inline void testobj::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
   }
-  msg_->assign(value);
+  name_->assign(value);
 }
-inline void test::set_msg(const char* value, size_t size) {
-  set_has_msg();
-  if (msg_ == &::google::protobuf::internal::kEmptyString) {
-    msg_ = new ::std::string;
+inline void testobj::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
   }
-  msg_->assign(reinterpret_cast<const char*>(value), size);
+  name_->assign(reinterpret_cast<const char*>(value), size);
 }
-inline ::std::string* test::mutable_msg() {
-  set_has_msg();
-  if (msg_ == &::google::protobuf::internal::kEmptyString) {
-    msg_ = new ::std::string;
+inline ::std::string* testobj::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
   }
-  return msg_;
+  return name_;
 }
-inline ::std::string* test::release_msg() {
-  clear_has_msg();
-  if (msg_ == &::google::protobuf::internal::kEmptyString) {
+inline ::std::string* testobj::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
     return NULL;
   } else {
-    ::std::string* temp = msg_;
-    msg_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
     return temp;
   }
 }
-inline void test::set_allocated_msg(::std::string* msg) {
-  if (msg_ != &::google::protobuf::internal::kEmptyString) {
-    delete msg_;
+inline void testobj::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    delete name_;
   }
-  if (msg) {
-    set_has_msg();
-    msg_ = msg;
+  if (name) {
+    set_has_name();
+    name_ = name;
   } else {
-    clear_has_msg();
-    msg_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
+}
+
+// -------------------------------------------------------------------
+
+// test
+
+// repeated string msg = 1;
+inline int test::msg_size() const {
+  return msg_.size();
+}
+inline void test::clear_msg() {
+  msg_.Clear();
+}
+inline const ::std::string& test::msg(int index) const {
+  return msg_.Get(index);
+}
+inline ::std::string* test::mutable_msg(int index) {
+  return msg_.Mutable(index);
+}
+inline void test::set_msg(int index, const ::std::string& value) {
+  msg_.Mutable(index)->assign(value);
+}
+inline void test::set_msg(int index, const char* value) {
+  msg_.Mutable(index)->assign(value);
+}
+inline void test::set_msg(int index, const char* value, size_t size) {
+  msg_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* test::add_msg() {
+  return msg_.Add();
+}
+inline void test::add_msg(const ::std::string& value) {
+  msg_.Add()->assign(value);
+}
+inline void test::add_msg(const char* value) {
+  msg_.Add()->assign(value);
+}
+inline void test::add_msg(const char* value, size_t size) {
+  msg_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+test::msg() const {
+  return msg_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+test::mutable_msg() {
+  return &msg_;
+}
+
+// -------------------------------------------------------------------
+
+// testlist
+
+// repeated .bigit.testobj obj = 1;
+inline int testlist::obj_size() const {
+  return obj_.size();
+}
+inline void testlist::clear_obj() {
+  obj_.Clear();
+}
+inline const ::bigit::testobj& testlist::obj(int index) const {
+  return obj_.Get(index);
+}
+inline ::bigit::testobj* testlist::mutable_obj(int index) {
+  return obj_.Mutable(index);
+}
+inline ::bigit::testobj* testlist::add_obj() {
+  return obj_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bigit::testobj >&
+testlist::obj() const {
+  return obj_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bigit::testobj >*
+testlist::mutable_obj() {
+  return &obj_;
 }
 
 

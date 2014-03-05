@@ -4,6 +4,8 @@
 //
 #include "phone.pb.h"
 
+#include <json/json.h>
+
 #include<string>
 #include <string.h>
 #include <stdlib.h>
@@ -30,6 +32,9 @@ const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
 const char *kDoTest = "DoTest"; // 卸载
 
+const char *kGetFilelist = "GetFilelist"; // 文件系统
+
+
 #define ADB_COMMAND_PATH  "c:\\adb.exe"
 
 std::string PictureType[3] = {"jpg", "jpeg", "png"}; // 图片数据类型
@@ -44,7 +49,7 @@ typedef SOCKET Socket;
 typedef int Socket;
 #endif
 
-   ofstream outdata; 
+ofstream outdata;
 
 
 
@@ -124,7 +129,7 @@ string replace(const string &str, const string &src, const string &dest)
     string::size_type pos       = str.find(src);
     while (pos != string::npos)
     {
-        cout << "replacexxx:" << pos_begin << " " << pos << "\n";
+     //   cout << "replacexxx:" << pos_begin << " " << pos << "\n";
         ret.append(str.data() + pos_begin, pos - pos_begin);
         ret += dest;
         pos_begin = pos + 1;
@@ -262,7 +267,7 @@ void clean_string(char *str)
 
 std::string GetKeyValue(CString all, CString key)
 {
-  //  all = all.Trim();
+    //  all = all.Trim();
     int first = all.Find(key);
     if(first < 1)
         return std::string("nofound");
@@ -394,10 +399,11 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
     }
     if (!strcmp(name, kDoTest))
     {
-		ret_val = true;
-		bigit::test tetsobj;
-		tetsobj.set_msg(std::string("testmsg"));
-		int size = tetsobj.ByteSize();
+        ret_val = true;
+        bigit::test tetsobj;
+		tetsobj.add_msg(string("tste1"));
+		tetsobj.add_msg(string("tste2"));
+        int size = tetsobj.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
         if (!npOutString)
@@ -405,9 +411,51 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         tetsobj.SerializeToArray(npOutString, size);
 
         STRINGZ_TO_NPVARIANT(npOutString, *result);
-	}
+    }
+    if (!strcmp(name, kGetFilelist))
+    {
+        ret_val = true;
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell ls -lR /storage");
+
+        string all = CString2String(ss);
+
+		char line[512];
+		string buffer;
+
+        all = replace(all, "\x0d\0a", "");
+		      outdata.open("c:\\out.dat");
+			  outdata.close();
+			  stringstream istr(all);  
+			//  istr.getline(all.c_str(),256);
+			  for(int j ; j<50 ; j++)
+			  {
+			 // istr.>>buffer;
+			  outdata << buffer;
+			  }
+			  outdata.close();
+			  //     for(int i = 0; all.size() > 2 ; i++)
+   //     {
+   //         string::size_type linelast =  all.find_first_of(":0x0d"); //  此行为父目录
+   //         string::size_type linefirst = all.find("0x0A");
+			//if(linelast != std::string::npos &&  )
+   //         string strprosion = all.substr(linefirst, linelast - linefirst);
+
+   //         Json::Value root;
+   //         Json::Value arrayObj;
+   //         Json::Value item;
+   //     }
+
+    }
 
 #if 1
+
+    Json::Value root;
+    Json::Value arrayObj;
+    Json::Value item;
+
+
+    std::string out = root.toStyledString();
+
     if (!strcmp(name, kGetAppList))
     {
         ret_val = true;
@@ -418,46 +466,48 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         int first = 0;
         int cout = 0;
         char pname_[1000];
-		outdata.open("c:\\out.dat");
-		if(!outdata)
-		{
-			//cout<<"can not open the file :out.dat"<<endl;
-			return  false;
-		}
-	/*	std::string str = CString2String(ss);
+        outdata.open("c:\\out.dat");
+        if(!outdata)
+        {
+            //cout<<"can not open the file :out.dat"<<endl;
+            return  false;
+        }
+        /*	std::string str = CString2String(ss);
 
-		       char *npOutString = (char *)npnfuncs->memalloc(str.size() + 1);
-        if (!npOutString)
-            return false;
-        strcpy(npOutString, str.c_str());*/
+        	       char *npOutString = (char *)npnfuncs->memalloc(str.size() + 1);
+            if (!npOutString)
+                return false;
+            strcpy(npOutString, str.c_str());*/
 
 
-  //      STRINGZ_TO_NPVARIANT(npOutString, *result);
-		std::string pname;
+        //      STRINGZ_TO_NPVARIANT(npOutString, *result);
+        std::string pname;
 
-		std::string all;
+        std::string all;
+
+
 
         for (int i = 0; ss.GetLength() > 2 ; i++)
         {
             last = ss.Find(CString("\x0d\x0d\0a")); // 行结束
 
-           std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
+            std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
 
             string::size_type de = ssline.find("=");  //等号后为软件名
 
             if(de  != std::string::npos)
-          {
-                 pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
+            {
+                pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
 
-              // std::string path = ssline.substr(8, de - 1); //path
+                // std::string path = ssline.substr(8, de - 1); //path
 
                 sprintf(pname_, "shell dumpsys package %s", pname.c_str());
 
                 CString sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  详细信息
 
-				std::string pversionname = GetKeyValue(sub, CString("versionName="));
+                std::string pversionname = GetKeyValue(sub, CString("versionName="));
 
-				std::string resourcePath =  GetKeyValue(sub, CString("resourcePath="));
+                std::string resourcePath =  GetKeyValue(sub, CString("resourcePath="));
 
                 bigit::AppInfo *pnewapp = plist.add_app();
 
@@ -467,22 +517,39 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                 pnewapp->set_size(pname);
                 pnewapp->set_location(resourcePath);
                 pnewapp->set_icodata(pname);
-				all = all+pname+pversionname+resourcePath;
-				outdata <<  pname  << " "<< pversionname << " "<< resourcePath << endl;
+                all = all + pname + pversionname + resourcePath;
+// json model
+                item["name"] = pname;
+                item["id"] = pname;
+                item["version"] = pversionname;
+                item["size"] = pversionname;
+                item["location"] = resourcePath;
+                item["icodata"] = resourcePath;
+                arrayObj.append(item);
+                outdata <<  pname  << " " << pversionname << " " << resourcePath << endl;
             }
             ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
         }
+        root["name"] = "json";
+        root["app"] = arrayObj;
+        std::string out  = root.toStyledString();
+
         int size = plist.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
         if (!npOutString)
             return false;
-      //  plist.SerializeToString(npOutString, size);
-		std::string aProtocolBuffer;
-		plist.SerializeToString(&aProtocolBuffer);
-		strcpy(npOutString, aProtocolBuffer.c_str());
-		outdata<<aProtocolBuffer;
-		outdata.close();
+        plist.SerializeToArray(npOutString, size);;
+//       std::string aProtocolBuffer;
+//        plist.SerializeToString(&aProtocolBuffer);;
+//
+//
+//        bigit::AppList newlist ;
+//        newlist.ParseFromArray(npOutString, size);;
+//        newlist.SerializeToString(&aProtocolBuffer);;
+////
+//        outdata << aProtocolBuffer << endl;
+//        outdata.close();
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetPictureList))
@@ -522,6 +589,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         plist.SerializeToArray(npOutString, size);
+
         STRINGZ_TO_NPVARIANT(npOutString, *result);
 
 
@@ -545,11 +613,11 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
 
         ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell dumpsys iphonesubinfo"); // 获取imei 号
 
-        std::string imei = GetKeyValue(ss,CString("Device ID = "));
+        std::string imei = GetKeyValue(ss, CString("Device ID = "));
 
         ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /sys/class/net/wlan0/address"); // 获取mac地址
 
-		std::string pmac = CString2String(ss);
+        std::string pmac = CString2String(ss);
 
         int first = pcpu.find("=");
         pcpu = pcpu.substr(first + 1, pcpu.size() - first - 1);
@@ -654,8 +722,8 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         char *npOutString = (char *)npnfuncs->memalloc(ss.GetLength() + 1);
         if (!npOutString)
             return false;
-		//string newss = 	devices();
-		strcpy(npOutString, ss.GetBuffer());
+        //string newss = 	devices();
+        strcpy(npOutString, ss.GetBuffer());
 #endif
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
