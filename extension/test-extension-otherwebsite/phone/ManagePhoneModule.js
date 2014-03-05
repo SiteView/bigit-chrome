@@ -43,19 +43,17 @@ PluginServices.factory('basicPluginService',function(){
 var PhoneManageService  = angular.module('PhoneManage.services', ['Plugin.services']);
 //管理App Service
 PhoneManageService.factory('phoneManageAppService',['appPluginService',function($appPluginService){ //手机管理服务
-        var appsCount = 0; //app数量
-        var appList = []; //app列表
         var service = {};
         //获取App列表
         var getAppList = function(){
-            var list = $appPluginService.getAppList();  //    Test  ----------
-            console.log(list);
-            return list;
+            var appList = $appPluginService.getAppList();  //    Test  ----------
+            console.log(appList);
+            return appList;
         }
         //获取App数量
         var getAppCount = function(){
             // appPlugin do some thing
-            return appsCount;
+            return service.appList.length;
         }
 
         //获取一个app信息
@@ -69,10 +67,13 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
 
         //卸载app
         var uninstall  = function(appId){
-            //模拟卸载arrayObject.splice(index,howmany
+            var appList = service.appList;
+            console.log('uninstall :' + appId)
+            //模拟卸载
             for(var index = 0; index < appList.length; index++ ){
                 var app = appList[index];
                 if(app.id == appId){
+                    console.log(app)
                     appList.splice(index,1);
                     service.appsCount = appList.length;//更新 值域
                     break;
@@ -84,65 +85,23 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
             service.appList = getAppList();
             service.appsCount = service.appList.length;
         }
-        //测试添加
-        var addTest = function(){
-            appList.push({
-                "id":"4",
-                "name":"app_4", 
-                "version":"0.4", 
-                "size":"100", 
-                "location":"sdcard", 
-                "icodata":"6"
-            });
-            service.appList = appList;
-            service.appsCount = appList.length;//更新 值域
-        }
-
-        var _init = function(){
-            appList = [
-                {
-                    "id":"1",
-                    "name":"app_1", 
-                    "version":"0.1", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
-                },
-                {
-                    "id":"2",
-                    "name":"app_2", 
-                    "version":"0.1", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
-                },
-                {
-                    "id":"3",
-                    "name":"app_3", 
-                    "version":"1.4", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
-                }
-            ];
-        }
-        _init();
+        //...  其他函数待定义
         service = {
             'refreshAppList':refreshAppList,
             'getAppList':getAppList,
             'getAppDetail':getAppDetail,
             'getAppCount':getAppCount,
             'uninstall':uninstall,
-            'appsCount':appsCount,
-            'appList':appList,
-            'addTest':addTest
+            'appsCount':0,
+            'appList':[]
         }
-        //...  其他函数待定义
+        
         return service;
     }]);
 
 //管理基本状态 Service
 PhoneManageService.factory('phoneBasicService',['basicPluginService',function($basicPluginService){ //手机状态服务
+        var service;
         var device = false;
         //获取设备信息
         var getDeviceInfo = function(){
@@ -157,11 +116,22 @@ PhoneManageService.factory('phoneBasicService',['basicPluginService',function($b
             }
             return device;
         }
-        return {
+        //刷新手机状态
+        var refreshPhoneStatus = function(){
+            var connectStatus = getPhoneConnectStatus();
+            if(!connectStatus){
+                return;
+            }
+            console.log(connectStatus);
+            service.DeviceInfo = connectStatus;
+        }
+        service = {
+            'refreshPhoneStatus':refreshPhoneStatus,
             'getPhoneConnectStatus':getPhoneConnectStatus,
             'getDeviceInfo':getDeviceInfo,
             'DeviceInfo':device
         }
+        return service;
     }]);
 
 //手机的基本状态 Controller
@@ -173,14 +143,9 @@ PhoneMangeController.controller("PhoneMangeConnectStatusCtrl",
         'phoneBasicService',
         function($scope,$phoneBasicService) {
             $scope.status = false;
-            $scope.phoneBasicService = $phoneBasicService;
+            $scope.phoneBasicService = $phoneBasicService;        
             $scope.refreshPhoneStatus = function(){
-                var connectStatus = $phoneBasicService.getPhoneConnectStatus();
-                if(!connectStatus){
-                    return;
-                }
-                console.log(connectStatus);
-                $phoneBasicService.DeviceInfo = connectStatus;
+                $phoneBasicService.refreshPhoneStatus();
                 $scope.$apply();
             }
         }
@@ -202,10 +167,8 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
             //刷新
             $scope.refreshAppList = function(){
                 //刷新Apps数据
-              $phoneManageAppService.refreshAppList();
-                // 测试
-              //  $phoneManageAppService.addTest();
-
+                $phoneManageAppService.refreshAppList();
+                $scope.$apply();
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
@@ -278,10 +241,12 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
 
 $(function(){
     var  refreshAppList = function(){
+        var t1 = new Date().getTime();
         console.log('正在加载AppList...')
         var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
         scope.refreshAppList();
         console.log('加载完毕')
+        console.log('耗时:' + (new Date().getTime() - t1)/1000);
     }
     var refreshPhoneStatus = function(){
         console.log('正在刷新手机状态...');
@@ -290,8 +255,8 @@ $(function(){
         console.log('刷新完成');
     }
     function __init(){
-        refreshAppList();
         refreshPhoneStatus();
+        refreshAppList();
     }
     setTimeout(__init,1000);
 });
