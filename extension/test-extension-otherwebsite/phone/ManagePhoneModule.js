@@ -8,12 +8,13 @@ PluginServices.factory('appPluginService',function(){
     var PhoneProtoBuilder = ProtoBuf.loadProtoFile("phone/phone.proto").build('bigit');
     var getAppList = function(){
         var message = plugin.GetAppList('');
-        console.log(encodeURI(message.replace(/\r\n/g,"\n")));
-        message = btoa(encodeURI(message.replace(/\r\n/g,"\n")));
         PhoneProtoBuilder.AppList.decode64(message);
-        return message;
+        var list =  PhoneProtoBuilder.AppList.decode64(message);
+        if(list && list.app){
+            return list.app
+        }
+        return [];
     }
-
     return {
         'getAppList':getAppList
     }
@@ -49,7 +50,7 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
         var getAppList = function(){
             var list = $appPluginService.getAppList();  //    Test  ----------
             console.log(list);
-            return appList;
+            return list;
         }
         //获取App数量
         var getAppCount = function(){
@@ -93,6 +94,7 @@ PhoneManageService.factory('phoneManageAppService',['appPluginService',function(
                 "location":"sdcard", 
                 "icodata":"6"
             });
+            service.appList = appList;
             service.appsCount = appList.length;//更新 值域
         }
 
@@ -193,9 +195,6 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
         '$routeParams',
         'phoneManageAppService',
         function($scope,$routeParams,$phoneManageAppService) {
-            var refreshAppList = function(){
-                
-            }
             $scope.phoneManageAppService = $phoneManageAppService;
             $scope.uninstall = function(appId){
                 $phoneManageAppService.uninstall(appId);
@@ -203,12 +202,14 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
             //刷新
             $scope.refreshAppList = function(){
                 //刷新Apps数据
-               // $phoneManageAppService.refreshAppList();
+              $phoneManageAppService.refreshAppList();
                 // 测试
-                $phoneManageAppService.addTest();
+              //  $phoneManageAppService.addTest();
+
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
+
         }
     ]);
 

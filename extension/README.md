@@ -94,3 +94,16 @@ const char *kGetSMSList = "GetSMSList"; // 短信列表
 const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
 ```
+
+
+### ProtoBuf
+protobuf的默认安装路径是/usr/local/lib，而/usr/local/lib 不在Ubuntu体系默认的 LD_LIBRARY_PATH 里，所以就找不到该lib
+解决方法:
+创建文件 /etc/ld.so.conf.d/libprotobuf.conf 包含内容：
+```shell
+/usr/local/lib 
+```
+然后运行命令：
+```shell
+sudo ldconfig 
+```

@@ -12,7 +12,7 @@ Search : <input type="text" class="search-query" ng-model="query">
 		</tr>
     </thead>
     <tbody>
-		<tr ng-repeat='app in phoneManageAppService.appList |  filter:query'>
+		<tr ng-repeat='app in phoneManageAppService.appList'>
 			<td>{{app.id}}</td>
 			<td>{{app.name}}</td>
 			<td>{{app.version}}</td>
