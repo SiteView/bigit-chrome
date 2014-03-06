@@ -21,7 +21,7 @@
     },
     "permissions":[
         "downloads",
-        "*://package.1mobile.com/*",
+        "storage",
         "tabs"
     ],
     "content_scripts": [
