@@ -12,7 +12,7 @@ function getDownloadAppUrl(appid){
 //添加等待下载的任务
 function addApkToDownloadStorge(downloadId){
     chrome.storage.local.get('apkWaitForDownloadStack',function(item){
-        apkStack = item.apkWaitForDownloadStack;
+        var apkStack = item.apkWaitForDownloadStack;
         apkStack = apkStack ? apkStack : [];
         apkStack.push(downloadId);
         chrome.storage.local.set({"apkWaitForDownloadStack":apkStack});
@@ -21,7 +21,7 @@ function addApkToDownloadStorge(downloadId){
 ///删除等待下载的任务 
 function removeApkFormDownloadStorge(downloadId){
     chrome.storage.local.get('apkWaitForDownloadStack',function(item){
-        apkStack = item.apkWaitForDownloadStack;
+        var apkStack = item.apkWaitForDownloadStack;
         if(!apkStack || !apkStack.length){
             return;
         }
@@ -35,14 +35,45 @@ function removeApkFormDownloadStorge(downloadId){
         chrome.storage.local.set({"apkWaitForDownloadStack":apkStack});
     });
 }
-
-//安装已下载完成的任务
-function installApk(downloadId){
-    chrome.downloads.search({id:downloadId}, function(item){
-        console.log("下载完成:");
-        console.log(item);
+//清空安装任务队列
+function clearApkToInstallStorge(){
+    chrome.storage.local.set({"apkWaitForInstallStack":[]});
+}
+//添加需要安装的任务到队列
+function addApkToInstallStorge(downloadId){
+    //判断是否为apk下载
+     chrome.storage.local.get('apkWaitForDownloadStack',function(item){
+        var apkStack = item.apkWaitForDownloadStack;
+        if(!apkStack || !apkStack.length){
+            return;
+        }
+        var flag = false;
+        var length = apkStack.length;
+        for(var i = 0 ; i < length ; i++){
+            if(apkStack[i] == downloadId){
+                flag = true;
+                break;
+            }
+        }
+        if(!flag){
+            return;
+        }
+        //寻找下载文件信息
+        chrome.downloads.search({id:downloadId}, function(items){
+            console.log("下载完成:");
+            console.log(items[0]);
+            var item = items[0]
+            chrome.storage.local.get('apkWaitForInstallStack',function(stack){
+                var apkStack = stack.apkWaitForInstallStack;
+                apkStack = apkStack ? apkStack : [];
+                apkStack.push(item);
+                chrome.storage.local.set({"apkWaitForInstallStack":apkStack});
+            });
+            removeApkFormDownloadStorge(downloadId);
+        });
     });
 }
+
 
 function downloadApp(appId){
     var downloaURL = getDownloadAppUrl(appId);
@@ -54,6 +85,24 @@ function downloadApp(appId){
          console.log("download item's id is " + downloadId);
          addApkToDownloadStorge(downloadId);
     })
+}
+
+function installApp(items){
+    var length = items.length;
+    var plugin = new PluginForPhone();
+    for(var i=0;i<length;i++){
+        var item = items[i];
+        if(!item.exists){
+            continue;
+        }
+        plugin.install(item.filename,function(flag){
+            if(flag){
+                console.log(item.filename+" 安装完成");
+            }else{
+                console.log(item.filename+" 安装失败");
+            }
+        })
+    }
 }
 /*
 *下载完成： 
@@ -74,16 +123,27 @@ data{
 }
 */
 chrome.downloads.onChanged.addListener(function(data){
-        console.log("download:");
-        console.log(data);
         //下载完成
         if(data && data.endTime && data.state && data.state.current == "complete"){
-            removeApkFormDownloadStorge(data.id);
-            installApk(data.id);
+            addApkToInstallStorge(data.id);
         }else if(data.canResume && data.canResume.current && data.error){ //下载失败
             removeApkFormDownloadStorge(data.id);
         }
 });
+
+chrome.storage.onChanged.addListener(function(changes,areaname){
+    //当安装队列发生变化时才进行app安装
+    if(areaname != "local" || !changes.apkWaitForInstallStack){
+        return;
+    }
+    var stack = changes.apkWaitForInstallStack.newValue;
+    if(!stack.length){//如果新值对列为空 
+        return;
+    }
+    installApp(stack);
+    clearApkToInstallStorge();
+});
+
 //获取google play 页面下载按钮发送的消息
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -97,3 +157,7 @@ chrome.runtime.onMessage.addListener(
        	downloadApp(appId);
     }
 );
+
+function initLocalStorage(){
+    chrome.storage.local.clear();
+}
