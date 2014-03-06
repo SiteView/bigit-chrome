@@ -15,19 +15,26 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
         }
 
         //卸载app
-        var uninstall  = function(appId){
-            var appList = service.appList;
-            console.log('uninstall :' + appId)
-            //模拟卸载
-            for(var index = 0; index < appList.length; index++ ){
-                var app = appList[index];
-                if(app.id == appId){
-                    console.log(app)
-                    appList.splice(index,1);
-                    service.appsCount = appList.length;//更新 值域
-                    break;
+        var uninstall  = function(appId,callback){
+            console.log('uninstall :' + appId);
+            plugin.uninstall(appId,function(flag){
+                if(!flag){
+                    console.log("卸载失败");
+                    callback && callback();
+                    return;
                 }
-            }
+                var appList = service.appList;
+                //删除显示条目
+                for(var index = 0; index < appList.length; index++ ){
+                    var app = appList[index];
+                    if(app.id == appId){
+                        appList.splice(index,1);
+                        service.appsCount = appList.length;//更新 值域
+                        break;
+                    }
+                }
+                callback && callback();
+            });
         }
         //刷新AppList
         var refreshAppList = function(callback){
@@ -184,12 +191,10 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
 
 $(function(){
     var  refreshAppList = function(){
-        var t1 = new Date().getTime();
         console.log('正在加载AppList...')
         var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
         scope.refreshAppList();
         console.log('加载完毕')
-        console.log('耗时:' + (new Date().getTime() - t1)/1000);
     }
     var refreshPhoneStatus = function(){
         console.log('正在刷新手机状态...');

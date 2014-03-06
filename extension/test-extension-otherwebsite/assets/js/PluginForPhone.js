@@ -10,7 +10,9 @@ var PluginForPhone = function(){
 PluginForPhone.prototype.getAppList = function(callback){
 	var self = this;
 	var message = self.plugin.GetAppList('');
+	var startTime = new Date().getTime();
 	var result =  self.PhoneProtoBuilder.AppList.decode64(message);
+	console.log("加载AppList耗时:"+(new Date().getTime() - startTime )/1000);
 	var  appList = result && result.app ? result.app : [];
 	if(!callback){
 	    return appList;
@@ -25,7 +27,26 @@ PluginForPhone.prototype.getAppList = function(callback){
 */
 PluginForPhone.prototype.uninstall = function(appId,callback){
 	var self = this;
-	var flag = self.plugin.DoUninstall("");
+	var command = "uninstall @appId";
+	command = command.replace(/\@appId/,appId);
+	var startTime = new Date().getTime();
+	var flag = self.plugin.DoUninstall(command);
+	console.log("卸载耗时:"+(new Date().getTime() - startTime )/1000);
+	if(!callback){
+	    return flag; 
+	}
+	callback(flag);
+}
+
+/**
+安装应用*/
+PluginForPhone.prototype.install = function(apkPath,callback){
+	var self = this;
+	var command = 'install @apkPath';
+	command = command.replace(/\@apkPath/,apkPath);
+	var startTime = new Date().getTime();
+	var flag = self.plugin.DoInstall(command);
+	console.log("安装耗时:"+(new Date().getTime() - startTime )/1000);
 	if(!callback){
 	    return flag; 
 	}

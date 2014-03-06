@@ -14,13 +14,14 @@ function downloadApp(appId){
 	var downloaURL = getDownloadAppUrl(appId);
 	var filename = appId + ".apk";
 	chrome.downloads.download({
-    	url:downloaURL,
-        filename:filename
+                url:downloaURL,
+                filename:filename
  	}, function(downloadId){
-      	console.log("download item's id is " + downloadId);
+      	     console.log("download item's id is " + downloadId);
 	})
 }
 
+//获取google play 页面下载按钮发送的消息
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         var url = sender.tab.url;
