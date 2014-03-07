@@ -1,3 +1,4 @@
+(function(){
 var  storelist = {
     OneMobile:"http://package.1mobile.com/d.php?pkg=@appName@&channel=304",
     wangdoujia:"http://apps.wandoujia.com/apps/@appName@/download"
@@ -137,7 +138,7 @@ chrome.storage.onChanged.addListener(function(changes,areaname){
         return;
     }
     var stack = changes.apkWaitForInstallStack.newValue;
-    if(!stack.length){//如果新值对列为空 
+    if(!stack || !stack.length){//如果新值对列为空 
         return;
     }
     installApp(stack);
@@ -157,7 +158,29 @@ chrome.runtime.onMessage.addListener(
        	downloadApp(appId);
     }
 );
-
+//初始化本地数据仓库
 function initLocalStorage(){
     chrome.storage.local.clear();
 }
+initLocalStorage();
+
+//启动 监听usb进程
+function __startUsbListener(){
+    console.log("启动usb监听进程");
+    var p = new PluginForPhone();
+    p.startProcess();
+}
+__startUsbListener();
+
+})()
+
+chrome.notifications.onClosed.addListene
+function testNotify(){
+     var opt = {
+        type: "basic",
+        title: "Primary Title",
+        message: "Primary message to display",
+        iconUrl: "assets/images/icon_38.png"
+      }
+      chrome.notifications.create("abc",opt ,function(a){console.log(a)} );
+} 

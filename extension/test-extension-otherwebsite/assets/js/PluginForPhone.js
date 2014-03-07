@@ -66,3 +66,7 @@ PluginForPhone.prototype.getDeviceInfo = function(callback){
 	}
 	callback(message);
 }
+PluginForPhone.prototype.startProcess = function(callback){
+	var self = this;
+	self.plugin.GetDeviceInfo('');
+}

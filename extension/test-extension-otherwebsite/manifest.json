@@ -23,7 +23,8 @@
         "downloads",
         "storage",
         "tabs",
-        "contextMenus"
+        "contextMenus",
+        "notifications"
     ],
     "content_scripts": [
         {
