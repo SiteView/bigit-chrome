@@ -58,7 +58,7 @@ typedef SOCKET Socket;
 typedef int Socket;
 #endif
 
-ofstream outdata;
+//ofstream outdata;
 
 
 void CloseSocket(Socket socket)
@@ -102,9 +102,8 @@ ScriptablePluginObject::ScriptablePluginObject(NPP instance)
 {
     thread t(GetDataThread, 0);
     t.join();
-	thread task(PhoneDataObject::Run, 0);
-	task.join();
-
+//	thread task(PhoneDataObject::Run, 0);
+//	task.join();
 }
 
 NPObject *ScriptablePluginObject::Allocate(NPP instance, NPClass *npclass)
@@ -131,31 +130,7 @@ bool ScriptablePluginObject::InvokeDefault(NPObject *obj, const NPVariant *args,
 /*
 
 */
-#ifdef UNCODE
-std::string CString2String(CString _input)
-{
 
-    int ansiLen = WideCharToMultiByte(CP_ACP, NULL, _input, wcslen(_input), NULL, 0, NULL, NULL);
-    char *_Chars = new char[ansiLen + 1];
-    memset(_Chars, 0x0, ansiLen + 1);
-    WideCharToMultiByte(CP_ACP, NULL, _input, wcslen(_input), _Chars, ansiLen, NULL, NULL);
-    _Chars[ansiLen] = '\0';
-    std::string output = _Chars;
-    delete[] _Chars;
-
-    return output;
-}
-#else
-std::string CString2String(CString _input)
-{
-    if(_input == "")
-    {
-        return"";
-    }
-    USES_CONVERSION;
-    return T2A((LPTSTR)(LPCTSTR)_input);
-}
-#endif
 void clean_string(char *str)
 {
     char *start = str - 1;
@@ -209,17 +184,7 @@ void clean_string(char *str)
     *(str + (int)end - (int)start) = 0;
 }
 
-std::string GetKeyValue(CString all, CString key)
-{
-    //  all = all.Trim();
-    int first = all.Find(key);
-    if(first < 1)
-        return std::string("nofound");
-    int last  = all.Find(CString("\x0d"), first);
-    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength());
-    std::string stdvatle =  CString2String(value);
-    return  stdvatle;
-}
+fast_mutex gFastMutex;
 
 CString ExecuteExternalFile(CString csExeName, CString csArguments)
 {
@@ -227,6 +192,8 @@ CString ExecuteExternalFile(CString csExeName, CString csArguments)
     csExecute = csExeName + " " + csArguments;
 
     // csExecute=csArguments;
+
+	lock_guard<fast_mutex> lock(gFastMutex);
 
     SECURITY_ATTRIBUTES secattr;
     ZeroMemory(&secattr, sizeof(secattr));
@@ -760,11 +727,11 @@ void GetDataThread(void *aArg)
         int first = 0;
         int cout = 0;
         char pname_[128];
-        //outdata.open("c:\\out.dat");
-        //if(!outdata)
-        //{
-        //    return  ;
-        //}
+        outdata.open("c:\\out.dat");
+        if(!outdata)
+        {
+            return  ;
+        }
         std::string pname;
         std::string all;
 
@@ -809,7 +776,7 @@ void GetDataThread(void *aArg)
                 pnewapp->set_location(resourcePath);
                 pnewapp->set_icodata(pname);
                 all = all + pname + pversionname + resourcePath;
-               // outdata <<  pname  << " " << pversionname << " " << resourcePath << endl;
+               outdata <<  pname  << " " << pversionname << " " << resourcePath << endl;
             }
             ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
         }

@@ -40,9 +40,11 @@ public:
 	};
 	void start()
 	{
-		thread task(Run, 0);
-		task.join();
-
+	#if defined(_TTHREAD_WIN32_)
+	_beginthread(Run, 0, this); 
+	#elif defined(_TTHREAD_POSIX_)
+	pthread_create(0, NULL, Run, (void *) ti) ;
+	#endif
 	};
 static	bool checkDevice()
 	{
@@ -97,7 +99,7 @@ static	void GetDeviceInf()
         //int size = devinf.ByteSize();
 		devinf.SerializeToString(&DeviceInf);
 		hasDeviceInf = true;
-		//outdata << "get deviceinf" << DeviceInf << endl;
+		outdata << "get deviceinf" << DeviceInf << endl;
 	};
 
 static void Run(void *aArg)
