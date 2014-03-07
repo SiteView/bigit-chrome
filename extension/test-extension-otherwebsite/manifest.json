@@ -22,7 +22,8 @@
     "permissions":[
         "downloads",
         "storage",
-        "tabs"
+        "tabs",
+        "contextMenus"
     ],
     "content_scripts": [
         {
