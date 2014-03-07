@@ -38,7 +38,9 @@ public class ApkDownloader_wandoujia extends ApkDownloader {
 					+ pkg + ".apk");
 			HttpEntity entity1 = response1.getEntity();
 			InputStream is = entity1.getContent();
-	
+			if (response1.getStatusLine().getStatusCode() == 404)
+				return false;
+			
 			OutputStream os = httpres.getOutputStream();
 			while ((b = is.read()) != -1) {
 				os.write(b);

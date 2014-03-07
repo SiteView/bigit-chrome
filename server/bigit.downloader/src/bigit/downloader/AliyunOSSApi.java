@@ -54,6 +54,13 @@ public class AliyunOSSApi {
 		return null;
 	}
 	
+	public static boolean deleteApk(String apkName){
+		OSSClient client = init();
+		String key = apkName + ".apk";
+		client.deleteObject(bucketName, key);
+		return true;
+	}
+	
 	private static void uploadFile(OSSClient client, String bucketName,
 			String key, String filename, String contentType,Map<String, String> meta)
 			throws OSSException, ClientException, FileNotFoundException {

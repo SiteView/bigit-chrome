@@ -41,9 +41,10 @@ public class BigitDl implements javax.servlet.Servlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		localDir = "/var/tmp";
+		localDir = "d:\\cache";
 		boolean ret = initApi();
 		System.out.println("bigit download servlet init:" + ret);
+		TorrentTracker.start(localDir);
 	}
 
 	@Override
@@ -63,23 +64,29 @@ public class BigitDl implements javax.servlet.Servlet {
 		
 		//数据库里有记录
 		if (filepath.length()>0) {
-			File f = new File(localDir + File.separator +filepath);
-			//if (f.exists()){
-				URL url = AliyunOSSApi.downloadApk(pkg);
-				if (url!=null){
-					httpres.sendRedirect(url.toString());
-				
-				/*FileInputStream is = new FileInputStream(f);
-				httpres.setHeader("Content-Disposition", "attachment; filename="
-						+ pkg + ".apk");
+			File f = new File(filepath);
+			
+//				URL url = AliyunOSSApi.downloadApk(pkg);
+//				if (url!=null){
+//					httpres.sendRedirect(url.toString());
+			if (f.exists()){
+				FileInputStream is = new FileInputStream(f);
+				if (f.getAbsolutePath().endsWith(".apk")){
+					httpres.setHeader("Content-Disposition", "attachment; filename="
+							+ pkg + ".apk");
+					httpres.setContentType("application/vnd.android.package-archive");
+				}else if (f.getAbsolutePath().endsWith(".torrent")){
+					httpres.setHeader("Content-Disposition", "attachment; filename="
+							+ f.getName());
+					//httpres.setContentType("application/vnd.android.package-archive");
+				}
 				httpres.setContentLength((int) f.length());
-				httpres.setContentType("application/vnd.android.package-archive");
 				OutputStream os = res.getOutputStream();
 				while ((b = is.read()) != -1) {
 					os.write(b);
 				}
 				os.flush();
-				*/
+				
 				return ;
 			}
 		} 
@@ -105,10 +112,17 @@ public class BigitDl implements javax.servlet.Servlet {
 			if (ret){
 				if (f.exists())f.delete();
 				f2.renameTo(f);
+				String torrentFile = f.getAbsolutePath()+".torrent";
 				//String[] vn = ApkTool.unZip(f.getAbsolutePath(), fd.getAbsolutePath()+File.separator+pkg+".png");
 				String[] vn = AaptTool.unZip(f.getAbsolutePath(), fd.getAbsolutePath()+File.separator+pkg+".png");
-				if (AliyunOSSApi.updateApk(pkg, f.getAbsolutePath(), vn[2], vn[0]))
-					updateApkPath(pkg, filepath,vn[2],vn[0]);
+				//if (AliyunOSSApi.updateApk(pkg, f.getAbsolutePath(), vn[2], vn[0]))
+				//大文件，生成torrent文件
+				if (f.length()>10000000){
+					TorrentFile.create(torrentFile, f.getAbsolutePath());
+					TorrentTracker.announce(torrentFile);
+					updateApkPath(pkg, torrentFile,vn[2],vn[0]);
+				}else
+					updateApkPath(pkg, f.getAbsolutePath(),vn[2],vn[0]);
 				System.out.println("download done!");
 			}else{
 				f2.delete();
