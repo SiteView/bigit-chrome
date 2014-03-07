@@ -10,7 +10,7 @@ public class AaptTool {
 	      String[] st = new String[3];
 	      String tmp;
 	      try {
-			Process p =Runtime.getRuntime().exec("aapt d badging "+apkUrl);
+			Process p =Runtime.getRuntime().exec("d:\\aapt.exe d badging "+apkUrl);
 			
 			java.io.InputStreamReader isr = new java.io.InputStreamReader(p.getInputStream(),"UTF-8");
 			LineNumberReader a = new LineNumberReader(isr);
