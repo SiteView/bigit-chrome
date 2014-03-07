@@ -3,6 +3,15 @@
 // CPlugin class implementation
 //
 #include "phone.pb.h"
+#include "GetDataObject.h"
+#include "Tool.h"
+
+#include <json/json.h>
+
+#include <base64/base64.h>
+
+#include <TinyThread/tinythread.h>
+#include <TinyThread/fast_mutex.h>
 
 #include<string>
 #include <string.h>
@@ -13,6 +22,7 @@
 #include <atlstr.h>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #endif
 // 接口定义
 const char *kDoCommand =    "DoCommand";
@@ -27,6 +37,10 @@ const char *kGetAddressBook = "GetAddressBook";//通信录
 const char *kGetSMSList = "GetSMSList"; // 短信列表
 const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
+const char *kDoTest = "DoTest"; // 卸载
+
+const char *kGetFilelist = "GetFilelist"; // 文件系统
+
 
 #define ADB_COMMAND_PATH  "c:\\adb.exe"
 
@@ -35,12 +49,17 @@ std::string VideoType[6] = {"Ogg", "mp4"}; // 影像数据类型
 std::string MusicType[6] = {"aac", "mp3", "AMR"}; // 影像数据类型
 
 using namespace std;
+using namespace tthread;
+
 
 #if defined(WIN32)
 typedef SOCKET Socket;
 #else
 typedef int Socket;
 #endif
+
+ofstream outdata;
+
 
 void CloseSocket(Socket socket)
 {
@@ -50,6 +69,9 @@ void CloseSocket(Socket socket)
     close(socket);
 #endif
 }
+bool g_break = false;
+
+string applist ;
 
 CString GetAppPath()
 {
@@ -59,77 +81,6 @@ CString GetAppPath()
     strPath = exeFullPath;
     return strPath.Left(strPath.ReverseFind('\\'));
 }
-
-string trim(const string &str)
-{
-    string::size_type pos = str.find_first_not_of(' ');
-    if (pos == string::npos)
-    {
-        return str;
-    }
-    string::size_type pos2 = str.find_last_not_of(' ');
-    if (pos2 != string::npos)
-    {
-        return str.substr(pos, pos2 - pos + 1);
-    }
-    return str.substr(pos);
-}
-
-int split(const string &str, vector<string> &ret_, string sep = ",")
-{
-    if (str.empty())
-    {
-        return 0;
-    }
-
-    string tmp;
-    string::size_type pos_begin = str.find_first_not_of(sep);
-    string::size_type comma_pos = 0;
-
-    while (pos_begin != string::npos)
-    {
-        comma_pos = str.find(sep, pos_begin);
-        if (comma_pos != string::npos)
-        {
-            tmp = str.substr(pos_begin, comma_pos - pos_begin);
-            pos_begin = comma_pos + sep.length();
-        }
-        else
-        {
-            tmp = str.substr(pos_begin);
-            pos_begin = comma_pos;
-        }
-
-        if (!tmp.empty())
-        {
-            ret_.push_back(tmp);
-            tmp.clear();
-        }
-    }
-    return 0;
-}
-
-string replace(const string &str, const string &src, const string &dest)
-{
-    string ret;
-
-    string::size_type pos_begin = 0;
-    string::size_type pos       = str.find(src);
-    while (pos != string::npos)
-    {
-        cout << "replacexxx:" << pos_begin << " " << pos << "\n";
-        ret.append(str.data() + pos_begin, pos - pos_begin);
-        ret += dest;
-        pos_begin = pos + 1;
-        pos       = str.find(src, pos_begin);
-    }
-    if (pos_begin < str.length())
-    {
-        ret.append(str.begin() + pos_begin, str.end());
-    }
-    return ret;
-}
-
 
 static NPClass plugin_ref_obj =
 {
@@ -149,6 +100,11 @@ static NPClass plugin_ref_obj =
 ScriptablePluginObject::ScriptablePluginObject(NPP instance)
     : npp(instance)
 {
+    thread t(GetDataThread, 0);
+    t.join();
+	thread task(PhoneDataObject::Run, 0);
+	task.join();
+
 }
 
 NPObject *ScriptablePluginObject::Allocate(NPP instance, NPClass *npclass)
@@ -255,12 +211,12 @@ void clean_string(char *str)
 
 std::string GetKeyValue(CString all, CString key)
 {
-    all = all.Trim();
+    //  all = all.Trim();
     int first = all.Find(key);
     if(first < 1)
-        return std::string("");
+        return std::string("nofound");
     int last  = all.Find(CString("\x0d"), first);
-    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength() - 1);
+    CString value = all.Mid(first + key.GetLength(), last - first - key.GetLength());
     std::string stdvatle =  CString2String(value);
     return  stdvatle;
 }
@@ -299,8 +255,8 @@ CString ExecuteExternalFile(CString csExeName, CString csArguments)
     CloseHandle(wPipe);
 
     //now read the output pipe here.
-    char buf[1000];
-    memset(buf, 0x0, 1000);
+    char buf[10240];
+    memset(buf, 0x0, 10240);
     DWORD reDword;
     CString m_csOutput, csTemp;
     BOOL res;
@@ -385,54 +341,165 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         return ret_val;
 
     }
-
-#if 1
-    if (!strcmp(name, kGetAppList))
+    if (!strcmp(name, kDoInstall))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell pm list packages -3 -f");
-        delete buf;
-        bigit::AppList plist;
-        int last = 0;
-        int first = 0;
-        int cout = 0;
-        char pname_[1000];
-
-        for (int i = 0; ss.GetLength() > 2 ; i++)
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
+        string all = CString2String(ss);
+        string::size_type re = all.find("Success");
+        string restr;
+        if(re == std::string::npos )
         {
-            last = ss.Find(CString("\x0d")); // 行结束
-
-            std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
-
-            int de = ssline.find("=");  //等号后为软件名
-
-            if(de  != std::string::npos)
-            {
-                std::string pname = ssline.substr(de + 1, ssline.size() - 1); //name
-
-                std::string path = ssline.substr(8, de - 1); //path
-
-                sprintf(pname_, "shell dumpsys package %s", pname.c_str());
-
-                CString sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  详细信息
-
-                bigit::AppInfo *pnewapp = plist.add_app();
-                pnewapp->set_name(pname);
-                pnewapp->set_id(pname);
-                pnewapp->set_version(pname);
-                pnewapp->set_size(pname);
-                pnewapp->set_location(path);
-                pnewapp->set_icodata(pname);
-            }
-            ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
+            restr = "0";
         }
+        else
+        {
+            restr = "1";
+        }
+        char *npOutString = (char *)npnfuncs->memalloc(restr.size() + 1);
+        memset(npOutString, 0x0, restr.size() + 1);
+        if (!npOutString)
+            return false;
+        strcpy(npOutString, restr.c_str());
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+    }
+    if (!strcmp(name, kDoUninstall))
+    {
+        ret_val = true;
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
+        string all = CString2String(ss);
+        string::size_type re = all.find("Success");
+        string restr;
+        if(re == std::string::npos )
+        {
+            restr = string("0");
+        }
+        else
+        {
+            restr = string("1");
+        }
+        char *npOutString = (char *)npnfuncs->memalloc(restr.size() + 1);
+        memset(npOutString, 0x0, restr.size() + 1);
+        if (!npOutString)
+            return false;
+        strcpy(npOutString, restr.c_str());
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+    }
 
-        int size = plist.ByteSize();
+    if (!strcmp(name, kDoTest))
+    {
+        ret_val = true;
+        bigit::testlist tetsobj_;
+        bigit::testobj *pp = tetsobj_.add_obj();
+        pp->set_name(string("tste1"));
+        bigit::testobj *pp1 = tetsobj_.add_obj();
+        pp1->set_name(string("tste2"));
+        //	tetsobj.add_msg(string("tste1"));
+        //	tetsobj.add_msg(string("tste2"));
+        int size = tetsobj_.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
         if (!npOutString)
             return false;
-        plist.SerializeToArray(npOutString, size);
+        tetsobj_.SerializeToArray(npOutString, size);
+
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+    }
+    if (!strcmp(name, kGetFilelist))
+    {
+        ret_val = true;
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell ls -lR /storage");
+
+        string all = CString2String(ss);
+
+        // char line[512];
+        string buffer;
+
+        // all = replace(all, "\x0d\0a", "");
+        outdata.open("c:\\out.dat");
+        ;
+        stringstream istr(all);
+        //  istr.getline(all.c_str(),256);
+        std::istringstream iss(all);
+        std::string line;
+        std::string pdir("/");
+
+        while (getline(iss, line))
+        {
+            // Do something with `line`
+            //outdata << line;
+            if(line.size() <= 1)
+                continue;
+            if(line.size() > 2 && line.at(0) == '/'  )
+            {
+                outdata << "ispdir   " << line.erase(line.size() - 1) << endl;
+                pdir = line.erase(line.size() - 1);
+            }
+            else
+            {
+                if(line.size() > 1 && line.at(0) == 'd')
+                {
+                    std::istringstream isstr(line);
+                    std::string str;
+                    int index = 0;
+                    while (std::getline(isstr, str, ' '))
+                    {
+                        if(str.size() > 1)
+                        {
+                            index++; //  4: date 5:time 6:name
+                            if(index == 6)
+                            {
+                                str = pdir + "/" + str;
+                            }
+                            outdata << "isdir  " << index << " " << str << endl;
+                        }
+                    }
+                }
+                else
+                {
+                    std::istringstream isstr(line);
+                    std::string str;
+                    //outdata << "isfile  "<<line << endl;
+                    int index = 0;
+                    while (std::getline(isstr, str, ' '))
+                    {
+                        if(str.size() > 1)
+                        {
+                            index++; // 4: size 5: date 6:time 7:name
+                            if(index == 7)
+                            {
+                                str = pdir + "/" + str;
+                            }
+                            outdata << "isfield  " << index << " " << str << endl;
+                        }
+                    }
+                }
+            }
+        }
+        outdata.close();
+        //     for(int i = 0; all.size() > 2 ; i++)
+        //     {
+        //         string::size_type linelast =  all.find_first_of(":0x0d"); //  此行为父目录
+        //         string::size_type linefirst = all.find("0x0A");
+        //if(linelast != std::string::npos &&  )
+        //         string strprosion = all.substr(linefirst, linelast - linefirst);
+
+        //         Json::Value root;
+        //         Json::Value arrayObj;
+        //         Json::Value item;
+        //     }
+
+    }
+
+#if 1
+
+    if (!strcmp(name, kGetAppList))
+    {
+        ret_val = true;
+        delete buf;
+ 		char *npOutString = (char *)npnfuncs->memalloc(::applist.size() + 1);
+        memset(npOutString, 0x0, applist.size() + 1);
+        strcpy(npOutString, applist.c_str());
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetPictureList))
@@ -463,9 +530,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                 pnewres->set_format("jpg");
                 pnewres->set_path(picname);
             }
-
             ss = ss.Mid(last + 1, ss.GetLength() - (last + 1));
-
         }
 
         int size = plist.ByteSize();
@@ -474,27 +539,32 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         plist.SerializeToArray(npOutString, size);
+
         STRINGZ_TO_NPVARIANT(npOutString, *result);
-
-
     }
 
     if (!strcmp(name, kGetDeviceInfo))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /system/build.prop");
         delete buf;
 
-        std::string pmodel = GetKeyValue(ss, CString("product.model="));
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /system/build.prop");
+		std::string pmodel = GetKeyValue(ss, CString("product.model="));
         std::string pbrand = GetKeyValue(ss, CString("product.brand="));
         std::string pname = GetKeyValue(ss, CString("product.name="));
         std::string pcpu = GetKeyValue(ss, CString("product.cpu"));
 
-        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell getprop ro.serialno");
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell getprop ro.serialno"); // 获取sn
         ss = ss.Trim();
 
         std::string psn = CString2String(ss);
 
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell dumpsys iphonesubinfo"); // 获取imei 号
+
+        std::string imei = GetKeyValue(ss, CString("Device ID = "));
+
+        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /sys/class/net/wlan0/address"); // 获取mac地址
+        std::string pmac = CString2String(ss);
         int first = pcpu.find("=");
         pcpu = pcpu.substr(first + 1, pcpu.size() - first - 1);
         bigit::DeviceInfo devinf;
@@ -503,8 +573,8 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         devinf.set_name(pname);
         devinf.set_sn(psn);
         devinf.set_cpu(pcpu);
-        devinf.set_imei(pname);
-        devinf.set_mac(pname);
+        devinf.set_imei(imei);
+        devinf.set_mac(pmac);
         int size = devinf.ByteSize();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
@@ -517,9 +587,9 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
     if (!strcmp(name, kGetStorageInfo))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, " shell busybox df -k | busybox grep storage_int");
         delete buf;
 
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, " shell busybox df -k | busybox grep storage_int");
         ss = ss.Trim();
         bigit::StorageInfo StorageInfo;
         int first = 0;
@@ -598,8 +668,8 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         char *npOutString = (char *)npnfuncs->memalloc(ss.GetLength() + 1);
         if (!npOutString)
             return false;
-		//string newss = 	devices();
-		strcpy(npOutString, ss.GetBuffer());
+        //string newss = 	devices();
+        strcpy(npOutString, ss.GetBuffer());
 #endif
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
@@ -640,6 +710,7 @@ CPlugin::~CPlugin()
 #ifdef _WINDOWS
     m_hWnd = NULL;
 #endif
+    ::g_break = true;
     m_bInitialized = false;
 }
 
@@ -672,6 +743,81 @@ ScriptablePluginObject *CPlugin::GetScriptableObject()
     }
 
     return m_pScriptableObject;
+}
+
+// This is the child thread function
+void GetDataThread(void *aArg)
+{
+    while(true)
+    {
+		if(g_break)
+			break;
+
+        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell pm list packages -3 -f");
+
+        bigit::AppList plist;
+        int last = 0;
+        int first = 0;
+        int cout = 0;
+        char pname_[128];
+        //outdata.open("c:\\out.dat");
+        //if(!outdata)
+        //{
+        //    return  ;
+        //}
+        std::string pname;
+        std::string all;
+
+        for (int i = 0; ss.GetLength() > 2 ; i++)
+        {
+            last = ss.Find(CString("\x0d\x0d\0a")); // 行结束
+
+            std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
+
+            string::size_type de = ssline.find("=");  //等号后为软件名
+
+            if(de  != std::string::npos)
+            {
+                pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
+
+                // std::string path = ssline.substr(8, de - 1); //path
+
+                sprintf(pname_, "shell dumpsys package %s", pname.c_str());
+
+                CString sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  详细信息
+
+                std::string pversionname = GetKeyValue(sub, CString("versionName="));
+
+                std::string resourcePath =  GetKeyValue(sub, CString("resourcePath="));
+
+                bigit::AppInfo *pnewapp = plist.add_app();
+
+                sprintf(pname_, "shell ls -s %s", resourcePath.c_str());
+
+                sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  大小
+
+                std::string  line = CString2String(sub);
+
+                string::size_type  split = line.find_first_of(" ");
+
+                std::string psize = line.substr(0, split) + string("k");
+
+                pnewapp->set_name(pname);
+                pnewapp->set_id(pname);
+                pnewapp->set_version(pversionname);
+                pnewapp->set_size(psize);
+                pnewapp->set_location(resourcePath);
+                pnewapp->set_icodata(pname);
+                all = all + pname + pversionname + resourcePath;
+               // outdata <<  pname  << " " << pversionname << " " << resourcePath << endl;
+            }
+            ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
+        }
+        std::string aProtocolBuffer;
+        plist.SerializeToString(&aProtocolBuffer);
+        applist = base64_encode(reinterpret_cast<const unsigned char *>(aProtocolBuffer.c_str()), aProtocolBuffer.length());
+        this_thread::sleep_for(chrono::milliseconds(10000));
+    }
 }
 
 #ifdef _WINDOWS

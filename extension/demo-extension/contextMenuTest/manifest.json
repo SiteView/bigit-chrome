@@ -1,13 +1,18 @@
 {
 	"manifest_version":2,
 	
-	"name":"context menu test",
+	"name":"search",
 	"version":"1.0",
 	"description":"test context menus selecting word",
 	
 	"background":{
 		"scripts":["background.js"]
 	},
+	"icons": {
+      "16": "icon16x16.png",
+      "48": "icon48x48.png",
+      "128": "icon128x128.png"
+    },
 	"content_scripts":[{
 		"matches":["http://*/*","https://*/*"],
 		"js":["context.js"]

@@ -17,6 +17,7 @@
         "downloads",
          "cookies",
         "webNavigation",
+        "storage",
         "https://www.google.com/accounts/ClientLogin",
         "*://*.android.clients.google.com/*"
     ],

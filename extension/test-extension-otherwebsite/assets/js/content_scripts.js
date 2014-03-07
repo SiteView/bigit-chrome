@@ -1,3 +1,4 @@
+//获取App 详细信息
 function __getAppDetailInfo(){
 	//评分
 	var score =  document.querySelector("div[class=score-container] div[class=score]").innerText;//评分
@@ -30,7 +31,7 @@ function __getAppDetailInfo(){
 		appDetails:appDetails
 	}
 }
-
+//download按钮监听器
 function __downloadButtonListener(){
 	console.log("download");
 	console.log(__getAppDetailInfo())

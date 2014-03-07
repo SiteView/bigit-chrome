@@ -1,183 +1,215 @@
-// 插件
-var AppPluginServices = angular.module('AppPlugin.services', []);
-
-AppPluginServices.factory('appPluginService',function(){
-    var plugin = chrome.extension.getBackgroundPage(); //获取plugin
-    var getPlugin = function(){
-        return angular.element(plugin.document).find('body');
-    }
-    return {
-        'getPlugin':getPlugin
-    }
-});
-
 //该Service与 插件Service通讯 。
-angular.module('PhoneManageApp.services', ['AppPlugin.services'])
-    .factory('phoneManageService',['appPluginService',function(appPluginService){ //手机管理服务
-        var appPlugin = appPluginService.getPlugin();//app插件
-        
-        var appsCount = 0; //app数量
-        var appList = []; //app列表
+var PhoneManageService  = angular.module('PhoneManage.services', []);
+//管理App Service
+PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服务
         var service = {};
-        //获取App列表
-        var getAppList = function(){
-            //appPlugin do some thing
-            return appList;
-        }
-        //获取文件列表
-        var getFileList = function(){
-            //appPlugin do some thing
-        }
-        //获取App数量
-        var getAppCount = function(){
-            // appPlugin do some thing
-            return appsCount;
-        }
-        //卸载app
-        var uninstall  = function(appId){
-            //模拟卸载arrayObject.splice(index,howmany
-            for(var index = 0; index < appList.length; index++ ){
-                var app = appList[index];
-                if(app.id == appId){
-                    appList.splice(index,1);
-                    break;
-                }
+        var plugin = new PluginForPhone();
+
+        //获取一个app信息
+        var getAppDetail = function(appId){
+            //test
+            return {
+                appId:appId,
+                appName:appId+"_test"
             }
         }
 
-        var _init = function(){
-            appList = [
-                {
-                    "id":"1",
-                    "name":"app_1", 
-                    "version":"0.1", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
-                },
-                {
-                    "id":"2",
-                    "name":"app_2", 
-                    "version":"0.1", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
-                },
-                {
-                    "id":"3",
-                    "name":"app_3", 
-                    "version":"1.4", 
-                    "size":"100", 
-                    "location":"sdcard", 
-                    "icodata":"6"
+        //卸载app
+        var uninstall  = function(appId,callback){
+            console.log('uninstall :' + appId);
+            plugin.uninstall(appId,function(flag){
+                if(!flag){
+                    console.log("卸载失败");
+                    callback && callback();
+                    return;
                 }
-            ];
-            appsCount = appList.length;
+                var appList = service.appList;
+                //删除显示条目
+                for(var index = 0; index < appList.length; index++ ){
+                    var app = appList[index];
+                    if(app.id == appId){
+                        appList.splice(index,1);
+                        service.appsCount = appList.length;//更新 值域
+                        break;
+                    }
+                }
+                callback && callback();
+            });
         }
-        _init();
-        service = {
-            'getAppList':getAppList,
-            'getFileList':getFileList,
-            'getAppCount':getAppCount,
-            'uninstall':uninstall,
-            'appsCount':appsCount,
-            'appList':appList
+        //刷新AppList
+        var refreshAppList = function(callback){
+            plugin.getAppList(function(appList){
+                service.appList = appList;
+                service.appsCount = appList.length;
+                callback && callback();
+            });
         }
         //...  其他函数待定义
+        service = {
+            'refreshAppList':refreshAppList,
+            'getAppDetail':getAppDetail,
+            'uninstall':uninstall,
+            'appsCount':0,
+            'appList':[]
+        }
+        
         return service;
-    }])
-    .factory('phoneConnectService',function(){ //手机状态服务
-        //获取手机连接状态
-        var getPhoneConnectStatus = function(){ 
-            //do something
-            return false;
-        }
-        return {
-            'getPhoneConnectStatus':getPhoneConnectStatus
-        }
     });
 
+//管理基本状态 Service
+PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
+        var service;
+        var plugin = new PluginForPhone();
+       
+        //刷新手机状态
+        var refreshPhoneStatus = function(callback){
+            plugin.getDeviceInfo(function(DeviceInfo){
+                 if(!DeviceInfo || DeviceInfo.name === "nofound"){
+                    console.log("手机未连接");
+                    return;
+                 }
+                console.log(DeviceInfo);
+                service.DeviceInfo = DeviceInfo;
+                callback && callback();
+            });
+           
+
+        }
+        service = {
+            'refreshPhoneStatus':refreshPhoneStatus,
+            'DeviceInfo':false
+        }
+        return service;
+    });
+
+//手机的基本状态 Controller
+var PhoneMangeController = angular.module('PhoneManage.controller', ['PhoneManage.services']);
+//手机连接状态
+PhoneMangeController.controller("PhoneMangeConnectStatusCtrl",
+    [
+        '$scope',
+        'phoneBasicService',
+        function($scope,$phoneBasicService) {
+            $scope.status = false;
+            $scope.phoneBasicService = $phoneBasicService;        
+            $scope.refreshPhoneStatus = function(){
+                $phoneBasicService.refreshPhoneStatus(function(){
+                      $scope.$apply();
+                });
+            }
+        }
+    ]);
+
+
 //应用管理
-var AppsManagerModule = angular.module('AppsManagerModule',['PhoneManageApp.services']);
+var AppsManagerModule = angular.module('AppsManagerModule',['PhoneManage.services']);
 AppsManagerModule.controller("AppsManagerModuleCtrl",
     [
         '$scope',
-        'phoneManageService',
-        function($scope,phoneManageService) {
-            $scope.phoneManageService = phoneManageService;
+        '$routeParams',
+        'phoneManageAppService',
+        function($scope,$routeParams,$phoneManageAppService) {
+            $scope.phoneManageAppService = $phoneManageAppService;
             $scope.uninstall = function(appId){
-                phoneManageService.uninstall(appId);
-                //模拟刷新数据
-                phoneManageService.appsCount = phoneManageService.getAppCount();
-                phoneManageService.appsList = phoneManageService.getAppList();
+                $phoneManageAppService.uninstall(appId);
+            };
+            //刷新
+            $scope.refreshAppList = function(){
+                //刷新Apps数据
+                $phoneManageAppService.refreshAppList(function(){
+                    $scope.$apply();
+                });        
             } 
+            //获取某个App的信息
+            $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
 
         }
     ]);
 
-//侧边栏的 小通知，如 应用数量等。dom click listener
-var SideNavModule = angular.module('SideNavModule',['PhoneManageApp.services','ngRoute','AppsManagerModule']);
+//侧边栏 服务。dom click listener //注入AppsManagerModule给router使用
+var SideNavModule = angular.module('SideNavModule', ['ngRoute','PhoneManage.services','AppsManagerModule']);
+
+//侧边栏 服务的 小通知，如 应用数量等
 SideNavModule.controller("SideNavModuleController",
-	[
-		'$scope',
-        'phoneManageService', // PhoneManageApp services
-        'navButtonActionService',//self service
-		function($scope,phoneManageService,navButtonActionService) {
-        	$scope.phoneManageService = phoneManageService;
-            $scope.changeNavStyle = navButtonActionService.changeNavStyle;
-    	}
+    [
+        '$scope',
+        '$location',
+        'phoneManageAppService', // PhoneManage services
+        function($scope,$location,$phoneManageAppService) {
+            $scope.phoneManageAppService = $phoneManageAppService;
+            //根据路径判断当前侧边栏选中项
+            $scope.isActive =function(viewLocation){
+                return viewLocation == $location.path();
+            }
+        }
     ]);
 
-SideNavModule.factory('navButtonActionService',function(){ //手机管理服务
-    var changeNavStyle = function(e){
-        $(e.currentTarget).parent().find(".active").removeClass('active');
-        $(e.currentTarget).addClass('active');
-    }
-    return {'changeNavStyle':changeNavStyle};
-});
-
-SideNavModule.config(['$routeProvider',
-  function($routeProvider) {
+//路由功能
+SideNavModule.config(['$compileProvider','$routeProvider',
+  function($compileProvider,$routeProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(chrome-extension):/);
     $routeProvider
-        .when('/MyApps/:appId', {
-            templateUrl: 'phone/MyApps.html'
-            ,controller: 'AppsManagerModuleCtrl'
+        .when('/MyApps/AppList', {
+            templateUrl: 'phone/MyApps.html',
+            controller: 'AppsManagerModuleCtrl'
+        })
+        .when('/MyApps/AppDetails/:appid',{
+            controller:'AppsManagerModuleCtrl',
+            templateUrl:'phone/AppDetails.html'
         })
         .when('/MyFiles', {
             templateUrl: 'phone/MyFiles.html'
         })
+        .when('/',{
+            templateUrl:'phone/DeviceInfo.html',
+            controller:'PhoneMangeConnectStatusCtrl'
+        })
   }]);
 
-//连接手机的状态
-var PhoneConnectStatusModule = angular.module('PhoneConnectStatusModule',['PhoneManageApp.services']);
-
-PhoneConnectStatusModule.controller("PhoneConnectStatusModuleCtrl",
-	[
-		'$scope',
-        'phoneConnectService',
-		function($scope,phoneConnectService) {
-        	$scope.status = phoneConnectService.getPhoneConnectStatus();
-    	}
+//程序入口  主ng-app
+var PhoneManage = angular.module('PhoneManage',
+    [
+        'PhoneManage.controller',
+        'SideNavModule',
+        'ManagePhoneFilter'
     ]);
 
-
-
-
-var PhoneManageApp = angular.module('PhoneManageApp',[
-    'PhoneConnectStatusModule',
-    'SideNavModule',
-    'ManagePhoneFilter']);
-
 //自定义指令
-PhoneManageApp.directive('bigitSidenavbar', function() { //侧边导航栏
+PhoneManage.directive('bigitSidenavbar', function() { //展示侧边导航栏
         return {
             restrict: 'E',
             templateUrl: 'phone/ManagePhoneSideNavBar.html'
         };
-    })
-    .directive('bigitTopnavbar',function(){ //顶部导航栏
+    });
+PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
         return {
             restrict: 'E',
             templateUrl: 'phone/ManagePhoneTopNavBar.html'
         };
     });
+
+
+$(function(){
+    var  refreshAppList = function(){
+        console.log('正在加载AppList...')
+        var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
+        scope.refreshAppList();
+        console.log('加载完毕')
+    }
+    var refreshPhoneStatus = function(){
+        console.log('正在刷新手机状态...');
+        var scope = $('div[ng-controller=PhoneMangeConnectStatusCtrl]').scope();
+        scope.refreshPhoneStatus();
+        console.log('刷新完成');
+    }
+    function __init(){
+        refreshPhoneStatus();
+        refreshAppList();
+    }
+    setTimeout(__init,1000);
+});
+
+function testAppList(){
+    var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
+    scope.phoneManageAppService.getAppList();
+}
