@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="npp_entry.cc" />
+    <ClCompile Include="np_entry.cc" />
+    <ClCompile Include="phone.pb.cc" />
+    <ClCompile Include="plugin.cc" />
+    <ClCompile Include="base64\base64.cpp">
+      <Filter>base64</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_reader.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_writer.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_value.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="zip\unzip.cpp">
+      <Filter>unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="zip\zip.cpp">
+      <Filter>unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyThread\tinythread.cpp">
+      <Filter>tinythread</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="npapi.h" />
+    <ClInclude Include="npfunctions.h" />
+    <ClInclude Include="npruntime.h" />
+    <ClInclude Include="nptypes.h" />
+    <ClInclude Include="phone.pb.h" />
+    <ClInclude Include="plugin.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="base64\base64.h">
+      <Filter>base64</Filter>
+    </ClInclude>
+    <ClInclude Include="lib_json\json_batchallocator.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib_json\json_tool.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="zip\unzip.h">
+      <Filter>unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="zip\zip.h">
+      <Filter>unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyThread\fast_mutex.h">
+      <Filter>tinythread</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyThread\tinythread.h">
+      <Filter>tinythread</Filter>
+    </ClInclude>
+    <ClInclude Include="GetDataObject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="npsimple.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\SiteviewAppManager\SiteviewAppManager\index.html" />
+    <None Include="npsimple.def" />
+    <None Include="lib_json\json_internalarray.inl">
+      <Filter>json</Filter>
+    </None>
+    <None Include="lib_json\json_internalmap.inl">
+      <Filter>json</Filter>
+    </None>
+    <None Include="lib_json\json_valueiterator.inl">
+      <Filter>json</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="base64">
+      <UniqueIdentifier>{f0b7d657-3e06-461c-ab82-415fa64a3610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{78142194-68a5-48b8-90af-32bf22cd6024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="unzip">
+      <UniqueIdentifier>{3ccab0ed-035d-4e24-a851-3af49c4af2b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinythread">
+      <UniqueIdentifier>{f2c1af62-ba74-4a66-b603-6c1472ce7c2e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

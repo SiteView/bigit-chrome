@@ -86,6 +86,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="base64\base64.h" />
+    <ClInclude Include="GetDataObject.h" />
     <ClInclude Include="lib_json\json_batchallocator.h" />
     <ClInclude Include="lib_json\json_tool.h" />
     <ClInclude Include="npapi.h" />
@@ -95,6 +97,8 @@
     <ClInclude Include="phone.pb.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="TinyThread\fast_mutex.h" />
+    <ClInclude Include="TinyThread\tinythread.h" />
     <ClInclude Include="zip\unzip.h" />
     <ClInclude Include="zip\zip.h" />
   </ItemGroup>
@@ -106,6 +110,7 @@
     <None Include="npsimple.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="base64\base64.cpp" />
     <ClCompile Include="lib_json\json_reader.cpp" />
     <ClCompile Include="lib_json\json_value.cpp" />
     <ClCompile Include="lib_json\json_writer.cpp" />
@@ -113,6 +118,7 @@
     <ClCompile Include="np_entry.cc" />
     <ClCompile Include="phone.pb.cc" />
     <ClCompile Include="plugin.cc" />
+    <ClCompile Include="TinyThread\tinythread.cpp" />
     <ClCompile Include="zip\unzip.cpp" />
     <ClCompile Include="zip\zip.cpp" />
   </ItemGroup>
