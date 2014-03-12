@@ -38,12 +38,13 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
         }
         //刷新AppList
         var refreshAppList = function(callback){
-            plugin.getAppList(function(appList){
+            ManagePhoneStorage.getAppList(function(appList){
                 service.appList = appList;
                 service.appsCount = appList.length;
                 callback && callback();
             });
         }
+   //    refreshAppList(); 
         //...  其他函数待定义
         service = {
             'refreshAppList':refreshAppList,
@@ -63,17 +64,16 @@ PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
        
         //刷新手机状态
         var refreshPhoneStatus = function(callback){
-            plugin.getDeviceInfo(function(DeviceInfo){
-                 if(!DeviceInfo || DeviceInfo.name === "nofound"){
+            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
+                if(!DeviceInfo || DeviceInfo.name === "nofound"){
+                    service.DeviceInfo = false;
                     console.log("手机未连接");
-                    return;
-                 }
-                console.log(DeviceInfo);
-                service.DeviceInfo = DeviceInfo;
-                callback && callback();
+                 }else{
+                     console.log(DeviceInfo);
+                    service.DeviceInfo = DeviceInfo;
+                    callback && callback();
+                 }     
             });
-           
-
         }
         service = {
             'refreshPhoneStatus':refreshPhoneStatus,
@@ -90,13 +90,23 @@ PhoneMangeController.controller("PhoneMangeConnectStatusCtrl",
         '$scope',
         'phoneBasicService',
         function($scope,$phoneBasicService) {
-            $scope.status = false;
+            //$scope.status = false;
             $scope.phoneBasicService = $phoneBasicService;        
             $scope.refreshPhoneStatus = function(){
                 $phoneBasicService.refreshPhoneStatus(function(){
                       $scope.$apply();
                 });
             }
+            //初始化数据
+            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
+                    if(!DeviceInfo || DeviceInfo.name === "nofound"){
+                        $scope.phoneBasicService.DeviceInfo = false;
+                        console.log("手机未连接");
+                    }else{
+                        $scope.phoneBasicService.DeviceInfo = DeviceInfo;
+                    }
+                     $scope.$apply();
+            });
         }
     ]);
 
@@ -122,7 +132,12 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
-
+            //初始化数据
+            ManagePhoneStorage.getAppList(function(appList){
+                $scope.phoneManageAppService.appList = appList;
+                $scope.phoneManageAppService.appsCount = appList.length;
+                $scope.$apply();
+            });
         }
     ]);
 
@@ -188,23 +203,36 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
         };
     });
 
-
-$(function(){
-    var  refreshAppList = function(){
-        console.log('正在加载AppList...')
+var DefineAppTools = function(){};
+Object.defineProperty(DefineAppTools,"refreshAppList",{
+    value:function(){
         var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
-        scope.refreshAppList();
-        console.log('加载完毕')
+         scope.refreshAppList();
     }
-    var refreshPhoneStatus = function(){
-        console.log('正在刷新手机状态...');
+});
+Object.defineProperty(DefineAppTools,"refreshPhoneStatus",{
+    value:function(){
         var scope = $('div[ng-controller=PhoneMangeConnectStatusCtrl]').scope();
         scope.refreshPhoneStatus();
-        console.log('刷新完成');
     }
-    function __init(){
-        refreshPhoneStatus();
-        refreshAppList();
+});
+Object.defineProperty(DefineAppTools,"refreshAll",{
+    value:function(){
+        DefineAppTools.refreshAppList();
+        DefineAppTools.refreshPhoneStatus();
     }
-    setTimeout(__init,1000);
+});
+
+chrome.storage.onChanged.addListener(function(changes,areaname){
+    if(areaname != "local" || !changes[ManagePhoneStorage.AppList]){
+        return;
+    }
+    DefineAppTools.refreshAppList();
+});
+
+chrome.storage.onChanged.addListener(function(changes,areaname){
+    if(areaname != "local" || !changes[ManagePhoneStorage.DeviceInfo]){
+        return;
+    }
+    DefineAppTools.refreshPhoneStatus();
 });

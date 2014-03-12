@@ -45,8 +45,13 @@ PluginForPhone.prototype.install = function(apkPath,callback){
 	var command = 'install @apkPath';
 	command = command.replace(/\@apkPath/,apkPath);
 	var startTime = new Date().getTime();
-	var flag = self.plugin.DoInstall(command);
+	var flag = +self.plugin.DoInstall(command);
 	console.log("安装耗时:"+(new Date().getTime() - startTime )/1000);
+	if(flag){
+		console.log("安装成功")
+	}else{
+		console.log("安装失败")
+	}
 	if(!callback){
 	    return flag; 
 	}
@@ -59,18 +64,26 @@ PluginForPhone.prototype.install = function(apkPath,callback){
 PluginForPhone.prototype.getDeviceInfo = function(callback){
 	var self = this;
 	var result = self.plugin.GetDeviceInfo('');
+	console.log("获取的设备信息是：");
+	console.log(result)
        	result = btoa(result);
         	var message = self.PhoneProtoBuilder.DeviceInfo.decode64(result);
+        	console.log("获取的设备信息完成");
         	if(!callback){
 	    return message; 
 	}
 	callback(message);
 }
-PluginForPhone.prototype.startProcess = function(callback){
+
+
+
+//检查连接usb连接状态 连接 1 ，未连接 0
+PluginForPhone.prototype.checkDeviceStatus = function(callback){
 	var self = this;
-	self.plugin.GetAppList('');
+	return self.plugin.CheckDevice('');
 }
 
-PluginForPhone.prototype.checkStatus = function(){
-	
+//检查app列表是否已经完成 完成 1 ，否则 0
+PluginForPhone.prototype.checkAppListPrepareStatus = function(callback){
+	return this.plugin.CheckApplist('');
 }

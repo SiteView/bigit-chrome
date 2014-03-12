@@ -31,6 +31,8 @@ Object.defineProperty(AppDownloader,"isExistInArray",{
 Object.defineProperty(AppDownloader,"addApkToDownloadStorge",{
 	value:function(downloadId){
 		chrome.storage.local.get(AppDownloader.WaitForDownloadStack,function(item){
+			console.log("addApkToDownloadStorge item:");
+			console.log(item)
 			var apkStack = item[AppDownloader.WaitForDownloadStack];
 			apkStack = apkStack ? apkStack : [];
 			apkStack.push(downloadId);
@@ -62,10 +64,9 @@ Object.defineProperty(AppDownloader,"removeApkFormDownloadStorge",{
 Object.defineProperty(AppDownloader,"addApkToInstallStorge",{
 	value:function(downloadId){
 		 //判断是否为apk下载
-
 		chrome.storage.local.get(AppDownloader.WaitForDownloadStack,function(item){
-
-
+			console.log("addApkToInstallStorge 判断是否为apk下载 AppDownloader.WaitForDownloadStack:");
+			console.log(item)
 			var apkStack = item[AppDownloader.WaitForDownloadStack];
 			var index  = AppDownloader.isExistInArray(apkStack,downloadId);
 			if(index == -1){
@@ -77,6 +78,8 @@ Object.defineProperty(AppDownloader,"addApkToInstallStorge",{
 				console.log(items[0]);
 			    var item = items[0]
 			    chrome.storage.local.get(AppDownloader.WaitForInstallStack,function(stack){
+			    		console.log("AppDownloader.WaitForInstallStack:");
+			    		console.log(stack);
 					var apkStack = stack[AppDownloader.WaitForInstallStack];
 					apkStack = apkStack ? apkStack : [];
 					apkStack.push(item);
@@ -115,6 +118,7 @@ Object.defineProperty(AppDownloader,"installApp",{
 	        if(!item.exists){
 	            continue;
 	        }
+	        console.log(item.filename);
 	        plugin.install(item.filename,function(flag){
 	            if(flag){
 	               AppNotifications.tip("success",item.filename)

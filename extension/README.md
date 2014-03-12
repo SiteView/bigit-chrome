@@ -93,6 +93,8 @@ const char *kGetAddressBook = "GetAddressBook";//通信录
 const char *kGetSMSList = "GetSMSList"; // 短信列表
 const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
+const char *kCheckDevice = "CheckDevice"; 
+const char *kCheckApplist = "CheckApplist";
 ```
 
 

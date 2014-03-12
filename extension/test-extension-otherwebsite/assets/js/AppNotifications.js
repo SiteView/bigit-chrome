@@ -32,6 +32,22 @@ Object.defineProperty(AppNotifications,"getOptions",{
 	        		iconUrl: "assets/images/icon_38.png"
 				}
 				break;
+			case "connect":
+				options ={
+					type: "basic",
+	        		title: "BIGIT app manager",
+	        		message: "连接手机成功",
+	        		iconUrl: "assets/images/icon_38.png"
+				}
+				break;
+			case "disconnect":
+				options ={
+					type: "basic",
+	        		title: "BIGIT app manager",
+	        		message: "手机断开",
+	        		iconUrl: "assets/images/icon_38.png"
+				}
+				break;
 		}
 		return options;
 	}
@@ -44,4 +60,16 @@ Object.defineProperty(AppNotifications,"tip",{
 		chrome.notifications.create("",opt ,function(a){console.log(a)} );
 	}
 });
+
+Object.defineProperty(AppNotifications,"connect",{
+	value:function(status){
+		if(status){
+			var opt = AppNotifications.getOptions("connect");
+			
+		}else{
+			var opt = AppNotifications.getOptions("disconnect");
+		}
+		chrome.notifications.create("",opt ,function(a){console.log(a)} );
+	}
+})
 
