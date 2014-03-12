@@ -208,8 +208,3 @@ $(function(){
     }
     setTimeout(__init,1000);
 });
-
-function testAppList(){
-    var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
-    scope.phoneManageAppService.getAppList();
-}

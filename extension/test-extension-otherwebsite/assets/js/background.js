@@ -29,8 +29,7 @@ chrome.runtime.onMessage.addListener(
         })
     }
 );
-})()
-/*
+
 //启动 监听usb进程
 function __startUsbListener(){
     console.log("启动usb监听进程");
@@ -38,4 +37,6 @@ function __startUsbListener(){
     p.startProcess();
 }
 __startUsbListener();
-*/
+
+})()
+
