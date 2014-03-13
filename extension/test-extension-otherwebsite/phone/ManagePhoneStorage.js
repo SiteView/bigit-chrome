@@ -7,6 +7,12 @@ Object.defineProperties(ManagePhoneStorage,{
 	},
 	"DeviceInfo":{//等待安装队列
 		value:"_BIGIT_PhoneManage_DeviceInfo_"
+	},
+	"WaitForUninstallStack":{ //等待卸载的队列
+		value:"_BIGIT_PHONEMANAGE_WaitForUninstallStack_"
+	},
+	"FlagForIsUninstalling":{ //正在卸载的标志
+		value:"_BIGIT_PHONEMANAGE_FlagForIsUninstalling"
 	}
 });
 
@@ -54,6 +60,9 @@ Object.defineProperty(ManagePhoneStorage,"getDeviceInfo",{
 
 Object.defineProperty(ManagePhoneStorage,"init",{
 	value:function(){
+		//初始化卸载标志位
+		ManagePhoneStorage.setFlagForIsUninstalling(false);
+
 		var plugin = new PluginForPhone();
 		var flag = 0;
 		var refreshTime = 2*1000; //刷新时间
@@ -89,3 +98,55 @@ Object.defineProperty(ManagePhoneStorage,"init",{
 		checkPhoneConnectStatus();
 	}
 })
+
+//移除已经删除的app
+Object.defineProperty(ManagePhoneStorage,'removeAppFromAppList',{
+	value:function(appId){
+		chrome.storage.local.get(ManagePhoneStorage.AppList,function(item){
+			var list = ManagePhoneStorage.AppList in item ? item[ManagePhoneStorage.AppList] : [];
+			var length = list.length;
+			for(var i = 0 ; i < length ; i ++){
+				var  app = list[i];
+				if(app.id == appId){
+					list.splice(i,1);
+					break;
+				}
+			}
+			if(list.length == length){
+				return;
+			}
+			ManagePhoneStorage.saveAppList(list);
+		});
+	}
+});
+
+//添加app到 卸载堆栈
+Object.defineProperty(ManagePhoneStorage,"addAppToUninstallStack",{
+	value:function(appid){
+		chrome.storage.local.get(ManagePhoneStorage.WaitForUninstallStack,function(item){
+			var list = ManagePhoneStorage.WaitForUninstallStack in item ? item[ManagePhoneStorage.AppList] : [];
+			list.push(appid);
+			var storage = {};
+			storage[ManagePhoneStorage.WaitForUninstallStack] = list;
+			chrome.storage.local.set(storage);
+		})
+	}
+});
+
+//赋值卸载堆栈
+Object.defineProperty(ManagePhoneStorage,"setAppUninstallStack",{
+	value:function(list){
+		var storage = {};
+		storage[ManagePhoneStorage.WaitForUninstallStack] = list;
+		chrome.storage.local.set(storage);
+	}
+})
+
+//设置正在卸载的标志位
+Object.defineProperty(ManagePhoneStorage,'setFlagForIsUninstalling',{
+	value:function(flag){
+		var storage = {};
+		storage[ManagePhoneStorage.FlagForIsUninstalling] = !!flag;
+		chrome.storage.local.set(storage);
+	}
+});
