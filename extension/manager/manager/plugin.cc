@@ -4,7 +4,8 @@
 //
 #include "phone.pb.h"
 #include "GetDataObject.h"
-#include "Tool.h"
+#include <Tool.h>
+
 
 #include <json/json.h>
 
@@ -12,6 +13,8 @@
 
 #include <TinyThread/tinythread.h>
 #include <TinyThread/fast_mutex.h>
+
+extern PhoneDataObject task;
 
 #include<string>
 #include <string.h>
@@ -38,11 +41,13 @@ const char *kGetSMSList = "GetSMSList"; // 短信列表
 const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
 const char *kDoTest = "DoTest"; // 卸载
+const char *kCheckDevice = "CheckDevice"; 
+const char *kCheckApplist = "CheckApplist"; 
+
 
 const char *kGetFilelist = "GetFilelist"; // 文件系统
 
 
-#define ADB_COMMAND_PATH  "c:\\adb.exe"
 
 std::string PictureType[3] = {"jpg", "jpeg", "png"}; // 图片数据类型
 std::string VideoType[6] = {"Ogg", "mp4"}; // 影像数据类型
@@ -51,15 +56,14 @@ std::string MusicType[6] = {"aac", "mp3", "AMR"}; // 影像数据类型
 using namespace std;
 using namespace tthread;
 
+extern PhoneDataObject task;
+
 
 #if defined(WIN32)
 typedef SOCKET Socket;
 #else
 typedef int Socket;
 #endif
-
-//ofstream outdata;
-
 
 void CloseSocket(Socket socket)
 {
@@ -69,9 +73,7 @@ void CloseSocket(Socket socket)
     close(socket);
 #endif
 }
-bool g_break = false;
 
-string applist ;
 
 CString GetAppPath()
 {
@@ -81,6 +83,7 @@ CString GetAppPath()
     strPath = exeFullPath;
     return strPath.Left(strPath.ReverseFind('\\'));
 }
+
 
 static NPClass plugin_ref_obj =
 {
@@ -100,10 +103,8 @@ static NPClass plugin_ref_obj =
 ScriptablePluginObject::ScriptablePluginObject(NPP instance)
     : npp(instance)
 {
-    thread t(GetDataThread, 0);
-    t.join();
-//	thread task(PhoneDataObject::Run, 0);
-//	task.join();
+
+
 }
 
 NPObject *ScriptablePluginObject::Allocate(NPP instance, NPClass *npclass)
@@ -131,111 +132,8 @@ bool ScriptablePluginObject::InvokeDefault(NPObject *obj, const NPVariant *args,
 
 */
 
-void clean_string(char *str)
-{
-    char *start = str - 1;
-    char *end = str;
-    char *p = str;
-    while(*p)
-    {
-        switch(*p)
-        {
-        case ' ':
-        case '\r':
-        case '\n':
-        {
-            if(start + 1 == p)
-                start = p;
-        }
-        break;
-        default:
-            break;
-        }
-        ++p;
-    }
-    //现在来到了字符串的尾部 反向向前
-    --p;
-    ++start;
-    if(*start == 0)
-    {
-        //已经到字符串的末尾了
-        *str = 0 ;
-        return;
-    }
-    end = p + 1;
-    while(p > start)
-    {
-        switch(*p)
-        {
-        case ' ':
-        case '\r':
-        case '\n':
-        {
-            if(end - 1 == p)
-                end = p;
-        }
-        break;
-        default:
-            break;
-        }
-        --p;
-    }
-    memmove(str, start, end - start);
-    *(str + (int)end - (int)start) = 0;
-}
 
-fast_mutex gFastMutex;
 
-CString ExecuteExternalFile(CString csExeName, CString csArguments)
-{
-    CString csExecute;
-    csExecute = csExeName + " " + csArguments;
-
-    // csExecute=csArguments;
-
-	lock_guard<fast_mutex> lock(gFastMutex);
-
-    SECURITY_ATTRIBUTES secattr;
-    ZeroMemory(&secattr, sizeof(secattr));
-    secattr.nLength = sizeof(secattr);
-    secattr.bInheritHandle = TRUE;
-
-    HANDLE rPipe, wPipe;
-
-    //Create pipes to write and read data
-    CreatePipe(&rPipe, &wPipe, &secattr, 0);
-    //
-    STARTUPINFO sInfo;
-    ZeroMemory(&sInfo, sizeof(sInfo));
-    PROCESS_INFORMATION pInfo;
-    ZeroMemory(&pInfo, sizeof(pInfo));
-    sInfo.cb = sizeof(sInfo);
-    sInfo.dwFlags = STARTF_USESTDHANDLES;
-    sInfo.hStdInput = NULL;
-    sInfo.hStdOutput = wPipe;
-    sInfo.hStdError = wPipe;
-    TCHAR command[1024];
-    _tcscpy(command, csExecute);
-
-    //Create the process here.
-    CreateProcess(0, (LPSTR)command, 0, 0, 1, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &sInfo, &pInfo);
-    CloseHandle(wPipe);
-
-    //now read the output pipe here.
-    char buf[10240];
-    memset(buf, 0x0, 10240);
-    DWORD reDword;
-    CString m_csOutput, csTemp;
-    BOOL res;
-    do
-    {
-        res =::ReadFile(rPipe, buf, 100, &reDword, 0);
-        csTemp = buf;
-        m_csOutput += csTemp.Left(reDword);
-    }
-    while(res);
-    return m_csOutput;
-}
 
 static int mb_get_len(NPString src)
 {
@@ -308,9 +206,50 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         return ret_val;
 
     }
+	 if (!strcmp(name, kCheckApplist))
+    {
+		ret_val = true;
+		delete buf;
+		string restr;
+		if(task.hasApplist)
+        {
+            restr = "1";
+        }
+        else
+        {
+            restr = "0";
+        }
+        char *npOutString = (char *)npnfuncs->memalloc(restr.size() + 1);
+        memset(npOutString, 0x0, restr.size() + 1);
+        if (!npOutString)
+            return false;
+        strcpy(npOutString, restr.c_str());
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+	 }
+	 if (!strcmp(name, kCheckDevice))
+    {
+		ret_val = true;
+		delete buf;
+		string restr;
+        if(task.isConnected )
+        {
+            restr = "1";
+        }
+        else
+        {
+            restr = "0";
+        }
+        char *npOutString = (char *)npnfuncs->memalloc(restr.size() + 1);
+        memset(npOutString, 0x0, restr.size() + 1);
+        if (!npOutString)
+            return false;
+        strcpy(npOutString, restr.c_str());
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+	 }
     if (!strcmp(name, kDoInstall))
     {
         ret_val = true;
+		delete buf;
         CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
         string all = CString2String(ss);
         string::size_type re = all.find("Success");
@@ -356,6 +295,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
     if (!strcmp(name, kDoTest))
     {
         ret_val = true;
+		delete buf;
         bigit::testlist tetsobj_;
         bigit::testobj *pp = tetsobj_.add_obj();
         pp->set_name(string("tste1"));
@@ -383,7 +323,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         string buffer;
 
         // all = replace(all, "\x0d\0a", "");
-        outdata.open("c:\\out.dat");
+//        outdata.open("c:\\out.dat");
         ;
         stringstream istr(all);
         //  istr.getline(all.c_str(),256);
@@ -399,7 +339,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                 continue;
             if(line.size() > 2 && line.at(0) == '/'  )
             {
-                outdata << "ispdir   " << line.erase(line.size() - 1) << endl;
+//                outdata << "ispdir   " << line.erase(line.size() - 1) << endl;
                 pdir = line.erase(line.size() - 1);
             }
             else
@@ -418,7 +358,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                             {
                                 str = pdir + "/" + str;
                             }
-                            outdata << "isdir  " << index << " " << str << endl;
+//                            outdata << "isdir  " << index << " " << str << endl;
                         }
                     }
                 }
@@ -437,13 +377,13 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                             {
                                 str = pdir + "/" + str;
                             }
-                            outdata << "isfield  " << index << " " << str << endl;
+       //                     outdata << "isfield  " << index << " " << str << endl;
                         }
                     }
                 }
             }
         }
-        outdata.close();
+//        outdata.close();
         //     for(int i = 0; all.size() > 2 ; i++)
         //     {
         //         string::size_type linelast =  all.find_first_of(":0x0d"); //  此行为父目录
@@ -464,9 +404,9 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
     {
         ret_val = true;
         delete buf;
- 		char *npOutString = (char *)npnfuncs->memalloc(::applist.size() + 1);
-        memset(npOutString, 0x0, applist.size() + 1);
-        strcpy(npOutString, applist.c_str());
+ 		char *npOutString = (char *)npnfuncs->memalloc(::task.AppList.size() + 1);
+        memset(npOutString, 0x0, task.AppList.size() + 1);
+        strcpy(npOutString, task.AppList.c_str());
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetPictureList))
@@ -515,39 +455,12 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         ret_val = true;
         delete buf;
 
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /system/build.prop");
-		std::string pmodel = GetKeyValue(ss, CString("product.model="));
-        std::string pbrand = GetKeyValue(ss, CString("product.brand="));
-        std::string pname = GetKeyValue(ss, CString("product.name="));
-        std::string pcpu = GetKeyValue(ss, CString("product.cpu"));
-
-        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell getprop ro.serialno"); // 获取sn
-        ss = ss.Trim();
-
-        std::string psn = CString2String(ss);
-
-        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell dumpsys iphonesubinfo"); // 获取imei 号
-
-        std::string imei = GetKeyValue(ss, CString("Device ID = "));
-
-        ss =  ExecuteExternalFile(ADB_COMMAND_PATH, "shell cat /sys/class/net/wlan0/address"); // 获取mac地址
-        std::string pmac = CString2String(ss);
-        int first = pcpu.find("=");
-        pcpu = pcpu.substr(first + 1, pcpu.size() - first - 1);
-        bigit::DeviceInfo devinf;
-        devinf.set_brand(pbrand);
-        devinf.set_model(pmodel);
-        devinf.set_name(pname);
-        devinf.set_sn(psn);
-        devinf.set_cpu(pcpu);
-        devinf.set_imei(imei);
-        devinf.set_mac(pmac);
-        int size = devinf.ByteSize();
+		int size = task.DeviceInf.size();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
         memset(npOutString, 0x0, size + 1);
         if (!npOutString)
             return false;
-        devinf.SerializeToArray(npOutString, size);
+		strcpy(npOutString,task.DeviceInf.c_str());
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
 
@@ -677,12 +590,14 @@ CPlugin::~CPlugin()
 #ifdef _WINDOWS
     m_hWnd = NULL;
 #endif
-    ::g_break = true;
     m_bInitialized = false;
 }
 
+
+
 NPBool CPlugin::init(NPWindow *pNPWindow)
 {
+
     if(pNPWindow == NULL)
         return false;
 #ifdef _WINDOWS
@@ -710,81 +625,6 @@ ScriptablePluginObject *CPlugin::GetScriptableObject()
     }
 
     return m_pScriptableObject;
-}
-
-// This is the child thread function
-void GetDataThread(void *aArg)
-{
-    while(true)
-    {
-		if(g_break)
-			break;
-
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell pm list packages -3 -f");
-
-        bigit::AppList plist;
-        int last = 0;
-        int first = 0;
-        int cout = 0;
-        char pname_[128];
-        outdata.open("c:\\out.dat");
-        if(!outdata)
-        {
-            return  ;
-        }
-        std::string pname;
-        std::string all;
-
-        for (int i = 0; ss.GetLength() > 2 ; i++)
-        {
-            last = ss.Find(CString("\x0d\x0d\0a")); // 行结束
-
-            std::string ssline = CString2String(ss.Mid(first, last)); // 取得一行
-
-            string::size_type de = ssline.find("=");  //等号后为软件名
-
-            if(de  != std::string::npos)
-            {
-                pname = ssline.substr(de + 1, ssline.size() - de - 1); //name
-
-                // std::string path = ssline.substr(8, de - 1); //path
-
-                sprintf(pname_, "shell dumpsys package %s", pname.c_str());
-
-                CString sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  详细信息
-
-                std::string pversionname = GetKeyValue(sub, CString("versionName="));
-
-                std::string resourcePath =  GetKeyValue(sub, CString("resourcePath="));
-
-                bigit::AppInfo *pnewapp = plist.add_app();
-
-                sprintf(pname_, "shell ls -s %s", resourcePath.c_str());
-
-                sub = ExecuteExternalFile(ADB_COMMAND_PATH, pname_); //  大小
-
-                std::string  line = CString2String(sub);
-
-                string::size_type  split = line.find_first_of(" ");
-
-                std::string psize = line.substr(0, split) + string("k");
-
-                pnewapp->set_name(pname);
-                pnewapp->set_id(pname);
-                pnewapp->set_version(pversionname);
-                pnewapp->set_size(psize);
-                pnewapp->set_location(resourcePath);
-                pnewapp->set_icodata(pname);
-                all = all + pname + pversionname + resourcePath;
-               outdata <<  pname  << " " << pversionname << " " << resourcePath << endl;
-            }
-            ss = ss.Mid(last + 3, ss.GetLength() - (last + 3));
-        }
-        std::string aProtocolBuffer;
-        plist.SerializeToString(&aProtocolBuffer);
-        applist = base64_encode(reinterpret_cast<const unsigned char *>(aProtocolBuffer.c_str()), aProtocolBuffer.length());
-        this_thread::sleep_for(chrono::milliseconds(10000));
-    }
 }
 
 #ifdef _WINDOWS

@@ -26,6 +26,14 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the NPL, the GPL or the LGPL.
 * ***** END LICENSE BLOCK ***** */
+#include <iostream>
+#include <fstream>
+
+#include <TinyThread\tinythread.h>
+#include <TinyThread\fast_mutex.h>
+
+using namespace tthread;
+using namespace std;
 
 #include <stdio.h>
 #include "plugin.h"
@@ -55,6 +63,7 @@ NPError NPP_GetValue(NPP instance, NPPVariable variable, void* value) {
   }
   return NPERR_NO_ERROR;
 }
+
 
 NPError NPP_New(NPMIMEType pluginType, NPP instance,
                 uint16_t mode, int16_t argc, char* argn[],

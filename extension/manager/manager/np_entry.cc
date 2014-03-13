@@ -39,9 +39,26 @@
 //
 // Main plugin entry point implementation
 //
+
+#include <GetDataObject.h>
+
+
 #include <stdio.h>
 #include "npapi.h"
 #include "npfunctions.h"
+
+#include <iostream>
+#include <fstream>
+
+#include <TinyThread\tinythread.h>
+#include <TinyThread\fast_mutex.h>
+
+
+
+using namespace tthread;
+using namespace std;
+
+
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -71,6 +88,29 @@ NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* nppfuncs) {
   nppfuncs->destroystream = NPP_DestroyStream;
   return NPERR_NO_ERROR;
 }
+std::ofstream outdatapp;
+
+PhoneDataObject task;
+
+DWORD WINAPI GetDataThreadA(void *aArg)
+{
+	outdatapp.open("c:\\outlog.dat",ios_base::app | ios_base::out );	
+	for(;;)
+		{
+			static   long long i = 0;
+			i++;
+
+			if(!outdatapp)
+			{
+				return 1 ;
+			}
+			outdatapp << i << endl;
+			this_thread::sleep_for(chrono::milliseconds(10000));
+		}
+}
+
+//thread tt(GetDataThreadA, 0);
+
 
 NPError OSCALL NP_Initialize(NPNetscapeFuncs* npnf
 #if !defined(_WINDOWS) && !defined(WEBKIT_DARWIN_SDK)
@@ -92,6 +132,8 @@ NPError OSCALL NP_Initialize(NPNetscapeFuncs* npnf
   GdiplusStartupInput input;
   GdiplusStartup(&token,&input,NULL);
 #endif
+   CreateThread(NULL, 0, GetDataThreadA, 0, 0, NULL);
+   	task.start();
                  return NPERR_NO_ERROR;
 }
 

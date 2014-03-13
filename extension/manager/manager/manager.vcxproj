@@ -47,9 +47,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>D:\SiteviewAppManager\protobuf-2.5.0\protobuf-2.5.0\src;.;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\SiteviewAppManager\protobuf-2.5.0\protobuf-2.5.0\vsprojects\Release;$(LibraryPath)</LibraryPath>
-    <OutDir>D:\SiteviewAppManager\SiteviewAppManager\plugin</OutDir>
+    <IncludePath>E:\work\c\protobuf-2.5.0\src;.;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\work\c\protobuf-2.5.0\vsprojects\Release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,11 +99,12 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="TinyThread\fast_mutex.h" />
     <ClInclude Include="TinyThread\tinythread.h" />
+    <ClInclude Include="Tool.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="zip\unzip.h" />
     <ClInclude Include="zip\zip.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\SiteviewAppManager\SiteviewAppManager\index.html" />
     <None Include="lib_json\json_internalarray.inl" />
     <None Include="lib_json\json_internalmap.inl" />
     <None Include="lib_json\json_valueiterator.inl" />
@@ -111,15 +112,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base64\base64.cpp" />
+    <ClCompile Include="GetDataObject.cpp" />
     <ClCompile Include="lib_json\json_reader.cpp" />
     <ClCompile Include="lib_json\json_value.cpp" />
     <ClCompile Include="lib_json\json_writer.cpp" />
     <ClCompile Include="npp_entry.cc" />
     <ClCompile Include="np_entry.cc" />
     <ClCompile Include="phone.pb.cc" />
-    <ClCompile Include="PhoneDataObject.cpp" />
     <ClCompile Include="plugin.cc" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
+    <ClCompile Include="tool.cpp" />
     <ClCompile Include="zip\unzip.cpp" />
     <ClCompile Include="zip\zip.cpp" />
   </ItemGroup>
