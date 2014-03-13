@@ -26,7 +26,8 @@
     <ClCompile Include="TinyThread\tinythread.cpp">
       <Filter>tinythread</Filter>
     </ClCompile>
-    <ClCompile Include="PhoneDataObject.cpp" />
+    <ClCompile Include="GetDataObject.cpp" />
+    <ClCompile Include="tool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="npapi.h" />
@@ -58,12 +59,13 @@
       <Filter>tinythread</Filter>
     </ClInclude>
     <ClInclude Include="GetDataObject.h" />
+    <ClInclude Include="Tool.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="npsimple.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\SiteviewAppManager\SiteviewAppManager\index.html" />
     <None Include="npsimple.def" />
     <None Include="lib_json\json_internalarray.inl">
       <Filter>json</Filter>
