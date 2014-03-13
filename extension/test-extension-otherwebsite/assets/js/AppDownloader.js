@@ -121,7 +121,8 @@ Object.defineProperty(AppDownloader,"installApp",{
 	        console.log(item.filename);
 	        plugin.install(item.filename,function(flag){
 	            if(flag){
-	               AppNotifications.tip("success",item.filename)
+	            	ManagePhoneStorage.refreshAppList();
+	               AppNotifications.tip("success",item.filename);
 	            }else{
 	                AppNotifications.tip("fail",item.filename)
 	            }

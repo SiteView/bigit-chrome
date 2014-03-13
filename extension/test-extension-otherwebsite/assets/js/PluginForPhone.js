@@ -42,10 +42,10 @@ PluginForPhone.prototype.uninstall = function(appId,callback){
 安装应用*/
 PluginForPhone.prototype.install = function(apkPath,callback){
 	var self = this;
-	var command = ' install @apkPath';
-	command = command.replace(/\@apkPath/,apkPath);
+	var command = ' install "@apkPath@"';
+	command = command.replace("@apkPath@",apkPath);
 	var startTime = new Date().getTime();
-	command = command.replace(/\\/g,"/")
+	command = command.replace(/\\/g,"/");
 	console.log(command);
 	var result = self.plugin.DoInstall(command);
 	console.log(result);
