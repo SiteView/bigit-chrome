@@ -36,5 +36,4 @@ function __startUsbListener(){
     ManagePhoneStorage.init();
 }
 __startUsbListener();
-})()
-
+})();
