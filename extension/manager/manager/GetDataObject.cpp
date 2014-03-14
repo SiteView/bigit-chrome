@@ -1,11 +1,10 @@
 
 
-#include <phone.pb.h>
+#include "phone.pb.h"
 
-#include <base64/base64.h>
+#include "base64/base64.h"
 
-#include <TinyThread/tinythread.h>
-#include <TinyThread/fast_mutex.h>
+#include "TinyThread/fast_mutex.h"
 
 #include<string>
 #include <string.h>
@@ -96,7 +95,10 @@ using namespace tthread;
         devinf.set_sn(psn);
         devinf.set_cpu(pcpu);
         devinf.set_imei(imei);
-        devinf.set_mac(pmac);
+		if (pmac.find("No such file")>0)
+			devinf.set_mac("");
+		else
+			devinf.set_mac(pmac);
         //int size = devinf.ByteSize();
 		devinf.SerializeToString(&DeviceInf);
 		hasDeviceInf = true;
@@ -147,12 +149,15 @@ using namespace tthread;
 
                 string::size_type  split = line.find_first_of(" ");
 
-                std::string psize = line.substr(0, split) + string("k");
+                std::string psize = line.substr(0, split);
+				std::string fsize;
+				FormatSize(psize,fsize,1);
 
                 pnewapp->set_name(pname);
                 pnewapp->set_id(pname);
                 pnewapp->set_version(pversionname);
-                pnewapp->set_size(psize);
+
+                pnewapp->set_size(fsize);
                 pnewapp->set_location(resourcePath);
                 pnewapp->set_icodata(pname);
                 all = all + pname + pversionname + resourcePath;

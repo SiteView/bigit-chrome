@@ -15,11 +15,11 @@
 #include <fstream>
 #endif
 
-#include <TinyThread\fast_mutex.h>
+#include "TinyThread\fast_mutex.h"
 
 using namespace std;
 
-#define ADB_COMMAND_PATH  "c:\\adb.exe"
+#define ADB_COMMAND_PATH  "adb.exe"
 
 CString ExecuteExternalFile(CString csExeName, CString csArguments);
 
@@ -46,5 +46,11 @@ void GetDataThread(void *aArg);
 void clean_string(char *str);
 
 CString ExecuteExternalFile(CString csExeName, CString csArguments);
+
+// read a token from line
+int ReadToken(std::string src, int start, char tc, std::string& out);
+
+bool FormatSize(std::string src, std::string& out, int unit);
+
 
 #endif

@@ -45,6 +45,8 @@ class Person_PhoneNumber;
 class AddressBook;
 class SMSInfo;
 class SMSList;
+class FileInfo;
+class FileList;
 class testobj;
 class test;
 class testlist;
@@ -1452,6 +1454,283 @@ class SMSList : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static SMSList* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class FileInfo : public ::google::protobuf::Message {
+ public:
+  FileInfo();
+  virtual ~FileInfo();
+
+  FileInfo(const FileInfo& from);
+
+  inline FileInfo& operator=(const FileInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FileInfo& default_instance();
+
+  void Swap(FileInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  FileInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const FileInfo& from);
+  void MergeFrom(const FileInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string right = 1;
+  inline bool has_right() const;
+  inline void clear_right();
+  static const int kRightFieldNumber = 1;
+  inline const ::std::string& right() const;
+  inline void set_right(const ::std::string& value);
+  inline void set_right(const char* value);
+  inline void set_right(const char* value, size_t size);
+  inline ::std::string* mutable_right();
+  inline ::std::string* release_right();
+  inline void set_allocated_right(::std::string* right);
+
+  // required string owner = 2;
+  inline bool has_owner() const;
+  inline void clear_owner();
+  static const int kOwnerFieldNumber = 2;
+  inline const ::std::string& owner() const;
+  inline void set_owner(const ::std::string& value);
+  inline void set_owner(const char* value);
+  inline void set_owner(const char* value, size_t size);
+  inline ::std::string* mutable_owner();
+  inline ::std::string* release_owner();
+  inline void set_allocated_owner(::std::string* owner);
+
+  // required string modify = 3;
+  inline bool has_modify() const;
+  inline void clear_modify();
+  static const int kModifyFieldNumber = 3;
+  inline const ::std::string& modify() const;
+  inline void set_modify(const ::std::string& value);
+  inline void set_modify(const char* value);
+  inline void set_modify(const char* value, size_t size);
+  inline ::std::string* mutable_modify();
+  inline ::std::string* release_modify();
+  inline void set_allocated_modify(::std::string* modify);
+
+  // optional string size = 4;
+  inline bool has_size() const;
+  inline void clear_size();
+  static const int kSizeFieldNumber = 4;
+  inline const ::std::string& size() const;
+  inline void set_size(const ::std::string& value);
+  inline void set_size(const char* value);
+  inline void set_size(const char* value, size_t size);
+  inline ::std::string* mutable_size();
+  inline ::std::string* release_size();
+  inline void set_allocated_size(::std::string* size);
+
+  // required string date = 5;
+  inline bool has_date() const;
+  inline void clear_date();
+  static const int kDateFieldNumber = 5;
+  inline const ::std::string& date() const;
+  inline void set_date(const ::std::string& value);
+  inline void set_date(const char* value);
+  inline void set_date(const char* value, size_t size);
+  inline ::std::string* mutable_date();
+  inline ::std::string* release_date();
+  inline void set_allocated_date(::std::string* date);
+
+  // required string time = 6;
+  inline bool has_time() const;
+  inline void clear_time();
+  static const int kTimeFieldNumber = 6;
+  inline const ::std::string& time() const;
+  inline void set_time(const ::std::string& value);
+  inline void set_time(const char* value);
+  inline void set_time(const char* value, size_t size);
+  inline ::std::string* mutable_time();
+  inline ::std::string* release_time();
+  inline void set_allocated_time(::std::string* time);
+
+  // required string name = 7;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 7;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // required string path = 8;
+  inline bool has_path() const;
+  inline void clear_path();
+  static const int kPathFieldNumber = 8;
+  inline const ::std::string& path() const;
+  inline void set_path(const ::std::string& value);
+  inline void set_path(const char* value);
+  inline void set_path(const char* value, size_t size);
+  inline ::std::string* mutable_path();
+  inline ::std::string* release_path();
+  inline void set_allocated_path(::std::string* path);
+
+  // @@protoc_insertion_point(class_scope:bigit.FileInfo)
+ private:
+  inline void set_has_right();
+  inline void clear_has_right();
+  inline void set_has_owner();
+  inline void clear_has_owner();
+  inline void set_has_modify();
+  inline void clear_has_modify();
+  inline void set_has_size();
+  inline void clear_has_size();
+  inline void set_has_date();
+  inline void clear_has_date();
+  inline void set_has_time();
+  inline void clear_has_time();
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_path();
+  inline void clear_has_path();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* right_;
+  ::std::string* owner_;
+  ::std::string* modify_;
+  ::std::string* size_;
+  ::std::string* date_;
+  ::std::string* time_;
+  ::std::string* name_;
+  ::std::string* path_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
+
+  friend void  protobuf_AddDesc_phone_2eproto();
+  friend void protobuf_AssignDesc_phone_2eproto();
+  friend void protobuf_ShutdownFile_phone_2eproto();
+
+  void InitAsDefaultInstance();
+  static FileInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class FileList : public ::google::protobuf::Message {
+ public:
+  FileList();
+  virtual ~FileList();
+
+  FileList(const FileList& from);
+
+  inline FileList& operator=(const FileList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FileList& default_instance();
+
+  void Swap(FileList* other);
+
+  // implements Message ----------------------------------------------
+
+  FileList* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const FileList& from);
+  void MergeFrom(const FileList& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bigit.FileInfo file = 1;
+  inline int file_size() const;
+  inline void clear_file();
+  static const int kFileFieldNumber = 1;
+  inline const ::bigit::FileInfo& file(int index) const;
+  inline ::bigit::FileInfo* mutable_file(int index);
+  inline ::bigit::FileInfo* add_file();
+  inline const ::google::protobuf::RepeatedPtrField< ::bigit::FileInfo >&
+      file() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bigit::FileInfo >*
+      mutable_file();
+
+  // @@protoc_insertion_point(class_scope:bigit.FileList)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::RepeatedPtrField< ::bigit::FileInfo > file_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_phone_2eproto();
+  friend void protobuf_AssignDesc_phone_2eproto();
+  friend void protobuf_ShutdownFile_phone_2eproto();
+
+  void InitAsDefaultInstance();
+  static FileList* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -3934,6 +4213,599 @@ SMSList::sms() const {
 inline ::google::protobuf::RepeatedPtrField< ::bigit::SMSInfo >*
 SMSList::mutable_sms() {
   return &sms_;
+}
+
+// -------------------------------------------------------------------
+
+// FileInfo
+
+// required string right = 1;
+inline bool FileInfo::has_right() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void FileInfo::set_has_right() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void FileInfo::clear_has_right() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void FileInfo::clear_right() {
+  if (right_ != &::google::protobuf::internal::kEmptyString) {
+    right_->clear();
+  }
+  clear_has_right();
+}
+inline const ::std::string& FileInfo::right() const {
+  return *right_;
+}
+inline void FileInfo::set_right(const ::std::string& value) {
+  set_has_right();
+  if (right_ == &::google::protobuf::internal::kEmptyString) {
+    right_ = new ::std::string;
+  }
+  right_->assign(value);
+}
+inline void FileInfo::set_right(const char* value) {
+  set_has_right();
+  if (right_ == &::google::protobuf::internal::kEmptyString) {
+    right_ = new ::std::string;
+  }
+  right_->assign(value);
+}
+inline void FileInfo::set_right(const char* value, size_t size) {
+  set_has_right();
+  if (right_ == &::google::protobuf::internal::kEmptyString) {
+    right_ = new ::std::string;
+  }
+  right_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_right() {
+  set_has_right();
+  if (right_ == &::google::protobuf::internal::kEmptyString) {
+    right_ = new ::std::string;
+  }
+  return right_;
+}
+inline ::std::string* FileInfo::release_right() {
+  clear_has_right();
+  if (right_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = right_;
+    right_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_right(::std::string* right) {
+  if (right_ != &::google::protobuf::internal::kEmptyString) {
+    delete right_;
+  }
+  if (right) {
+    set_has_right();
+    right_ = right;
+  } else {
+    clear_has_right();
+    right_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string owner = 2;
+inline bool FileInfo::has_owner() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void FileInfo::set_has_owner() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void FileInfo::clear_has_owner() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void FileInfo::clear_owner() {
+  if (owner_ != &::google::protobuf::internal::kEmptyString) {
+    owner_->clear();
+  }
+  clear_has_owner();
+}
+inline const ::std::string& FileInfo::owner() const {
+  return *owner_;
+}
+inline void FileInfo::set_owner(const ::std::string& value) {
+  set_has_owner();
+  if (owner_ == &::google::protobuf::internal::kEmptyString) {
+    owner_ = new ::std::string;
+  }
+  owner_->assign(value);
+}
+inline void FileInfo::set_owner(const char* value) {
+  set_has_owner();
+  if (owner_ == &::google::protobuf::internal::kEmptyString) {
+    owner_ = new ::std::string;
+  }
+  owner_->assign(value);
+}
+inline void FileInfo::set_owner(const char* value, size_t size) {
+  set_has_owner();
+  if (owner_ == &::google::protobuf::internal::kEmptyString) {
+    owner_ = new ::std::string;
+  }
+  owner_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_owner() {
+  set_has_owner();
+  if (owner_ == &::google::protobuf::internal::kEmptyString) {
+    owner_ = new ::std::string;
+  }
+  return owner_;
+}
+inline ::std::string* FileInfo::release_owner() {
+  clear_has_owner();
+  if (owner_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = owner_;
+    owner_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_owner(::std::string* owner) {
+  if (owner_ != &::google::protobuf::internal::kEmptyString) {
+    delete owner_;
+  }
+  if (owner) {
+    set_has_owner();
+    owner_ = owner;
+  } else {
+    clear_has_owner();
+    owner_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string modify = 3;
+inline bool FileInfo::has_modify() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void FileInfo::set_has_modify() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void FileInfo::clear_has_modify() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void FileInfo::clear_modify() {
+  if (modify_ != &::google::protobuf::internal::kEmptyString) {
+    modify_->clear();
+  }
+  clear_has_modify();
+}
+inline const ::std::string& FileInfo::modify() const {
+  return *modify_;
+}
+inline void FileInfo::set_modify(const ::std::string& value) {
+  set_has_modify();
+  if (modify_ == &::google::protobuf::internal::kEmptyString) {
+    modify_ = new ::std::string;
+  }
+  modify_->assign(value);
+}
+inline void FileInfo::set_modify(const char* value) {
+  set_has_modify();
+  if (modify_ == &::google::protobuf::internal::kEmptyString) {
+    modify_ = new ::std::string;
+  }
+  modify_->assign(value);
+}
+inline void FileInfo::set_modify(const char* value, size_t size) {
+  set_has_modify();
+  if (modify_ == &::google::protobuf::internal::kEmptyString) {
+    modify_ = new ::std::string;
+  }
+  modify_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_modify() {
+  set_has_modify();
+  if (modify_ == &::google::protobuf::internal::kEmptyString) {
+    modify_ = new ::std::string;
+  }
+  return modify_;
+}
+inline ::std::string* FileInfo::release_modify() {
+  clear_has_modify();
+  if (modify_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = modify_;
+    modify_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_modify(::std::string* modify) {
+  if (modify_ != &::google::protobuf::internal::kEmptyString) {
+    delete modify_;
+  }
+  if (modify) {
+    set_has_modify();
+    modify_ = modify;
+  } else {
+    clear_has_modify();
+    modify_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string size = 4;
+inline bool FileInfo::has_size() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void FileInfo::set_has_size() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void FileInfo::clear_has_size() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void FileInfo::clear_size() {
+  if (size_ != &::google::protobuf::internal::kEmptyString) {
+    size_->clear();
+  }
+  clear_has_size();
+}
+inline const ::std::string& FileInfo::size() const {
+  return *size_;
+}
+inline void FileInfo::set_size(const ::std::string& value) {
+  set_has_size();
+  if (size_ == &::google::protobuf::internal::kEmptyString) {
+    size_ = new ::std::string;
+  }
+  size_->assign(value);
+}
+inline void FileInfo::set_size(const char* value) {
+  set_has_size();
+  if (size_ == &::google::protobuf::internal::kEmptyString) {
+    size_ = new ::std::string;
+  }
+  size_->assign(value);
+}
+inline void FileInfo::set_size(const char* value, size_t size) {
+  set_has_size();
+  if (size_ == &::google::protobuf::internal::kEmptyString) {
+    size_ = new ::std::string;
+  }
+  size_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_size() {
+  set_has_size();
+  if (size_ == &::google::protobuf::internal::kEmptyString) {
+    size_ = new ::std::string;
+  }
+  return size_;
+}
+inline ::std::string* FileInfo::release_size() {
+  clear_has_size();
+  if (size_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = size_;
+    size_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_size(::std::string* size) {
+  if (size_ != &::google::protobuf::internal::kEmptyString) {
+    delete size_;
+  }
+  if (size) {
+    set_has_size();
+    size_ = size;
+  } else {
+    clear_has_size();
+    size_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string date = 5;
+inline bool FileInfo::has_date() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void FileInfo::set_has_date() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void FileInfo::clear_has_date() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void FileInfo::clear_date() {
+  if (date_ != &::google::protobuf::internal::kEmptyString) {
+    date_->clear();
+  }
+  clear_has_date();
+}
+inline const ::std::string& FileInfo::date() const {
+  return *date_;
+}
+inline void FileInfo::set_date(const ::std::string& value) {
+  set_has_date();
+  if (date_ == &::google::protobuf::internal::kEmptyString) {
+    date_ = new ::std::string;
+  }
+  date_->assign(value);
+}
+inline void FileInfo::set_date(const char* value) {
+  set_has_date();
+  if (date_ == &::google::protobuf::internal::kEmptyString) {
+    date_ = new ::std::string;
+  }
+  date_->assign(value);
+}
+inline void FileInfo::set_date(const char* value, size_t size) {
+  set_has_date();
+  if (date_ == &::google::protobuf::internal::kEmptyString) {
+    date_ = new ::std::string;
+  }
+  date_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_date() {
+  set_has_date();
+  if (date_ == &::google::protobuf::internal::kEmptyString) {
+    date_ = new ::std::string;
+  }
+  return date_;
+}
+inline ::std::string* FileInfo::release_date() {
+  clear_has_date();
+  if (date_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = date_;
+    date_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_date(::std::string* date) {
+  if (date_ != &::google::protobuf::internal::kEmptyString) {
+    delete date_;
+  }
+  if (date) {
+    set_has_date();
+    date_ = date;
+  } else {
+    clear_has_date();
+    date_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string time = 6;
+inline bool FileInfo::has_time() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void FileInfo::set_has_time() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void FileInfo::clear_has_time() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void FileInfo::clear_time() {
+  if (time_ != &::google::protobuf::internal::kEmptyString) {
+    time_->clear();
+  }
+  clear_has_time();
+}
+inline const ::std::string& FileInfo::time() const {
+  return *time_;
+}
+inline void FileInfo::set_time(const ::std::string& value) {
+  set_has_time();
+  if (time_ == &::google::protobuf::internal::kEmptyString) {
+    time_ = new ::std::string;
+  }
+  time_->assign(value);
+}
+inline void FileInfo::set_time(const char* value) {
+  set_has_time();
+  if (time_ == &::google::protobuf::internal::kEmptyString) {
+    time_ = new ::std::string;
+  }
+  time_->assign(value);
+}
+inline void FileInfo::set_time(const char* value, size_t size) {
+  set_has_time();
+  if (time_ == &::google::protobuf::internal::kEmptyString) {
+    time_ = new ::std::string;
+  }
+  time_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_time() {
+  set_has_time();
+  if (time_ == &::google::protobuf::internal::kEmptyString) {
+    time_ = new ::std::string;
+  }
+  return time_;
+}
+inline ::std::string* FileInfo::release_time() {
+  clear_has_time();
+  if (time_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = time_;
+    time_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_time(::std::string* time) {
+  if (time_ != &::google::protobuf::internal::kEmptyString) {
+    delete time_;
+  }
+  if (time) {
+    set_has_time();
+    time_ = time;
+  } else {
+    clear_has_time();
+    time_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string name = 7;
+inline bool FileInfo::has_name() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void FileInfo::set_has_name() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void FileInfo::clear_has_name() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void FileInfo::clear_name() {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& FileInfo::name() const {
+  return *name_;
+}
+inline void FileInfo::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void FileInfo::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+}
+inline void FileInfo::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  return name_;
+}
+inline ::std::string* FileInfo::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string path = 8;
+inline bool FileInfo::has_path() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void FileInfo::set_has_path() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void FileInfo::clear_has_path() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void FileInfo::clear_path() {
+  if (path_ != &::google::protobuf::internal::kEmptyString) {
+    path_->clear();
+  }
+  clear_has_path();
+}
+inline const ::std::string& FileInfo::path() const {
+  return *path_;
+}
+inline void FileInfo::set_path(const ::std::string& value) {
+  set_has_path();
+  if (path_ == &::google::protobuf::internal::kEmptyString) {
+    path_ = new ::std::string;
+  }
+  path_->assign(value);
+}
+inline void FileInfo::set_path(const char* value) {
+  set_has_path();
+  if (path_ == &::google::protobuf::internal::kEmptyString) {
+    path_ = new ::std::string;
+  }
+  path_->assign(value);
+}
+inline void FileInfo::set_path(const char* value, size_t size) {
+  set_has_path();
+  if (path_ == &::google::protobuf::internal::kEmptyString) {
+    path_ = new ::std::string;
+  }
+  path_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* FileInfo::mutable_path() {
+  set_has_path();
+  if (path_ == &::google::protobuf::internal::kEmptyString) {
+    path_ = new ::std::string;
+  }
+  return path_;
+}
+inline ::std::string* FileInfo::release_path() {
+  clear_has_path();
+  if (path_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = path_;
+    path_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void FileInfo::set_allocated_path(::std::string* path) {
+  if (path_ != &::google::protobuf::internal::kEmptyString) {
+    delete path_;
+  }
+  if (path) {
+    set_has_path();
+    path_ = path;
+  } else {
+    clear_has_path();
+    path_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// -------------------------------------------------------------------
+
+// FileList
+
+// repeated .bigit.FileInfo file = 1;
+inline int FileList::file_size() const {
+  return file_.size();
+}
+inline void FileList::clear_file() {
+  file_.Clear();
+}
+inline const ::bigit::FileInfo& FileList::file(int index) const {
+  return file_.Get(index);
+}
+inline ::bigit::FileInfo* FileList::mutable_file(int index) {
+  return file_.Mutable(index);
+}
+inline ::bigit::FileInfo* FileList::add_file() {
+  return file_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bigit::FileInfo >&
+FileList::file() const {
+  return file_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bigit::FileInfo >*
+FileList::mutable_file() {
+  return &file_;
 }
 
 // -------------------------------------------------------------------
