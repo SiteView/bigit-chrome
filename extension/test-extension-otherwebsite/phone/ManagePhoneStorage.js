@@ -76,9 +76,11 @@ Object.defineProperty(ManagePhoneStorage,'refreshDevice',{
 Object.defineProperty(ManagePhoneStorage,'refreshAppList',{
 	value:function(){
 		var plugin = new PluginForPhone();
+		console.log("执行 刷新 手机应用");
 		var checkAppListPrepareStatus = +plugin.checkAppListPrepareStatus(); 
 		if( checkAppListPrepareStatus){
 			var list = plugin.getAppList();
+			console.log(list.length);
 			ManagePhoneStorage.saveAppList(list);
 		}
 	}

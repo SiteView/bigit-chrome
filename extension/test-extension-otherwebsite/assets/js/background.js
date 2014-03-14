@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(
         }, function(downloadId){
             console.log("download item's id is " + downloadId);
             //添加文件到安装队列
-            AppDownloader.addApkToDownloadStorge(downloadId);
+            AppDownloader.addApkToDownloadStorage(downloadId);
         })
     }
 );
