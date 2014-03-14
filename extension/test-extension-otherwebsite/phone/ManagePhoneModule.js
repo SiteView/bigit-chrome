@@ -5,8 +5,8 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
         var service = {};
         var plugin = new PluginForPhone();
         //刷新AppList
-        var refreshAppList = function(callback){
-            ManagePhoneStorage.getAppList(function(appList){
+        var refreshAppListAtStorage = function(callback){
+            ManagePhoneStorage.getAppListFormStorage(function(appList){
                 service.appList = appList;
                 service.appsCount = appList.length;
                 callback && callback();
@@ -24,24 +24,13 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
 
         //卸载app
         var uninstall  = function(appId,callback){
-
             console.log('uninstall :' + appId);
             ManagePhoneStorage.addAppToUninstallStack(appId);
-            /*
-            plugin.uninstall(appId,function(flag){
-                if(!flag){
-                    console.log("卸载失败");
-                    callback && callback();
-                    return;
-                }
-                callback && callback();
-            });
-            */
         }
         
 
         service = {
-            'refreshAppList':refreshAppList,
+            'refreshAppListAtStorage':refreshAppListAtStorage,
             'getAppDetail':getAppDetail,
             'uninstall':uninstall,
             'appsCount':0,
@@ -118,16 +107,16 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
                 $phoneManageAppService.uninstall(appId);
             };
             //刷新
-            $scope.refreshAppList = function(){
+            $scope.refreshAppListAtStorage = function(){
                 //刷新Apps数据
-                $phoneManageAppService.refreshAppList(function(){
+                $phoneManageAppService.refreshAppListAtStorage(function(){
                     $scope.$apply();
                 });        
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
             //初始化数据
-            ManagePhoneStorage.getAppList(function(appList){
+            ManagePhoneStorage.getAppListFormStorage(function(appList){
                 $scope.phoneManageAppService.appList = appList;
                 $scope.phoneManageAppService.appsCount = appList.length;
                 $scope.$apply();
@@ -204,10 +193,10 @@ Object.defineProperty(DefineAppTools,"plugin",{
 
 
 //刷新应用列表
-Object.defineProperty(DefineAppTools,"refreshAppList",{
+Object.defineProperty(DefineAppTools,"refreshAppListAtStorage",{
     value:function(){
         var scope = $('div[ng-controller=AppsManagerModuleCtrl]').scope();
-         scope.refreshAppList();
+         scope.refreshAppListAtStorage();
     }
 });
 //刷新手机状态
@@ -257,7 +246,7 @@ chrome.storage.onChanged.addListener(function(changes,areaname){
     }
     //监听应用列表数据变化
     if(changes[ManagePhoneStorage.AppList]){
-        DefineAppTools.refreshAppList();
+        DefineAppTools.refreshAppListAtStorage();
     }
     //监听手机状态变化
     if(changes[ManagePhoneStorage.DeviceInfo]){

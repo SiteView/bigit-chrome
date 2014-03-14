@@ -33,7 +33,7 @@ Object.defineProperty(ManagePhoneStorage,"saveAppList",{
 		chrome.storage.local.set(storage);
 	}
 });
-Object.defineProperty(ManagePhoneStorage,"getAppList",{
+Object.defineProperty(ManagePhoneStorage,"getAppListFormStorage",{
 	value:function(callback){
 		chrome.storage.local.get(ManagePhoneStorage.AppList,function(item){
 			var list = ManagePhoneStorage.AppList in item ? item[ManagePhoneStorage.AppList] : [];
@@ -55,6 +55,32 @@ Object.defineProperty(ManagePhoneStorage,"getDeviceInfo",{
 			var info = ManagePhoneStorage.DeviceInfo in item ? item[ManagePhoneStorage.DeviceInfo] : null;
 			callback(info)
 		});
+	}
+});
+//刷新设备包括设备信息和设备上的应用列表
+//只有当手机处于连接状态时，此方法才会执行。
+Object.defineProperty(ManagePhoneStorage,'refreshDevice',{
+	value:function(){
+		var plugin = new PluginForPhone();
+		var checkDeviceStatus  = +plugin.checkDeviceStatus(); 
+		var checkAppListPrepareStatus = +plugin.checkAppListPrepareStatus(); 
+		if(checkDeviceStatus && checkAppListPrepareStatus){
+			var list = plugin.getAppList();
+			ManagePhoneStorage.saveAppList(list);
+			var deviceInfo = plugin.getDeviceInfo();
+			ManagePhoneStorage.saveDeviceInfo(deviceInfo);
+		}
+	}
+});
+//刷新设备应用列表
+Object.defineProperty(ManagePhoneStorage,'refreshAppList',{
+	value:function(){
+		var plugin = new PluginForPhone();
+		var checkAppListPrepareStatus = +plugin.checkAppListPrepareStatus(); 
+		if( checkAppListPrepareStatus){
+			var list = plugin.getAppList();
+			ManagePhoneStorage.saveAppList(list);
+		}
 	}
 });
 
