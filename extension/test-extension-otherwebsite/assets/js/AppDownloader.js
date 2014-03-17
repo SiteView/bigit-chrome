@@ -134,25 +134,6 @@ Object.defineProperty(AppDownloader,"addApkToInstallStorage",{
 				AppDownloader.setStackToInstallStorage(installStack);
 				AppDownloader.removeApkFormDownloadStorage(downloadId);
 			});
-			/*
-			//寻找下载文件信息
-			chrome.downloads.search({id:downloadId}, function(items){
-				console.log("下载完成:");
-				console.log(items[0]);
-				var item = items[0]
-				chrome.storage.local.get(AppDownloader.WaitForInstallStack,function(stack){
-			    		console.log("AppDownloader.WaitForInstallStack:");
-			    		console.log(stack);
-					var apkStack = stack[AppDownloader.WaitForInstallStack];
-					apkStack = apkStack ? apkStack : [];
-					apkStack.push(item);
-					var storage = {};
-					storage[AppDownloader.WaitForInstallStack]  = apkStack
-					chrome.storage.local.set(storage);
-			   	});
-				AppDownloader.removeApkFormDownloadStorage(downloadId);
-			});
-			*/
 		});
 	}
 });
