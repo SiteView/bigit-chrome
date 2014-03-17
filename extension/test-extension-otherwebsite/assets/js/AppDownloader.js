@@ -23,6 +23,9 @@ Object.defineProperties(AppDownloader,{
 	},
 	"FlagForApkInstalling":{//正在安装应用的标志
 		value:"_flagForApkInstalling_"
+	},
+	'InstallingStack':{//正在安装的队列
+		value:"_apkInstallingStack_"
 	}
 });
 
@@ -138,6 +141,47 @@ Object.defineProperty(AppDownloader,"addApkToInstallStorage",{
 	}
 });
 
+//设置正在安装的任务队列
+Object.defineProperty(AppDownloader,"setStackToInstallingStorage",{
+	value:function(stack){
+		var storage = {};
+		storage[AppDownloader.InstallingStack]=stack;
+		chrome.storage.local.set(storage);
+	}
+});
+
+//获取正在安装的任务队列
+Object.defineProperty(AppDownloader,"getStackToInstallingStorage",{
+	value:function(callback){
+		chrome.storage.local.get(AppDownloader.InstallingStack,function(storage){
+	    		var stack  = AppDownloader.InstallingStack in storage
+	    				? storage[ AppDownloader.InstallingStack]
+	    				:  []
+	    		callback(stack);
+		});
+	}
+});
+//添加任务到正在安装队列
+Object.defineProperty(AppDownloader,"addApkToInstallingStorage",{
+	value:function(item){
+		AppDownloader.getStackToInstallingStorage(function(installingStack){
+			installingStack.push(item);
+			AppDownloader.setStackToInstallingStorage(installingStack);
+		});	
+	}
+});
+
+//某个安装任务完成
+Object.defineProperty(AppDownloader,"finishApkInstall",{
+	value:function(uuid,flag){
+		//AppDownloader.setFlagForApkInstalling(false);//非安装
+		//AppDownloader.setStackToInstallStorage(stack);//设置安装队列
+		AppDownloader.getStackToInstallingStorage(function(stack){
+			
+		});
+	}
+});
+
 //初始化本地数据仓库
 Object.defineProperty(AppDownloader,"initLocalStorage",{
 	value:function(){
@@ -197,6 +241,7 @@ Object.defineProperty(AppDownloader,"installApp",{
 						return;
 					}
 					var plugin = new PluginForPhone();
+					/*
 					plugin.install(item.filename,function(flag){
 						AppDownloader.setFlagForApkInstalling(false);//非安装
 						AppDownloader.setStackToInstallStorage(stack);//设置安装队列
@@ -207,6 +252,13 @@ Object.defineProperty(AppDownloader,"installApp",{
 							AppNotifications.tip("fail",item.filename)
 						}
 					})
+					*/
+					var uuid = plugin.install(item.filename);
+					AppDownloader.addApkToInstallingStorage({
+						uuid:uuid,
+						filename:item.filename,
+						fileId:item.id
+					});
 				});
 	   		});
 	    	});

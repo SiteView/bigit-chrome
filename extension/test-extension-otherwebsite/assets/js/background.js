@@ -37,3 +37,14 @@ function __startUsbListener(){
 }
 __startUsbListener();
 })();
+
+
+//监听plugin事件
+(
+    var plugin = document.getElementById(this.pluginId);
+    //监听安装完成事件
+    plugin.addEventListener('onResult',function(uuid,ret){
+        
+    });
+
+)()
