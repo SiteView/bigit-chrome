@@ -1,7 +1,9 @@
 #include "Tool.h"
 
-#include <TinyThread\fast_mutex.h>
-#include <TinyThread\tinythread.h>
+#include "TinyThread\fast_mutex.h"
+#include "TinyThread\tinythread.h"
+#include "Logger.h"
+#include <direct.h>
 
  using namespace tthread;
 
@@ -195,10 +197,19 @@ CString ExecuteExternalFile(CString csExeName, CString csArguments)
     sInfo.hStdOutput = wPipe;
     sInfo.hStdError = wPipe;
     TCHAR command[1024];
-    _tcscpy(command, csExecute);
-
+	GetModuleFileName(GetModuleHandle(_T("manager")),command,1000);
+	int i = 0;
+	for(i = _tclen(command)-1;i >=0; i--)
+	{
+		if(*(command+i) =='\\')
+			break;
+	}
+	memset(command+i+1,0,1024-i-1);
+    _tcscat(command+i, csExecute);
+	
+	bigit::Logger::Debug("ExecuteExternalFile cmd:%s",command);
     //Create the process here.
-    CreateProcess(0, (LPSTR)command, 0, 0, 1, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &sInfo, &pInfo);
+    CreateProcess(0, command, 0, 0, 1, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &sInfo, &pInfo);
     CloseHandle(wPipe);
 
     //now read the output pipe here.
@@ -214,5 +225,56 @@ CString ExecuteExternalFile(CString csExeName, CString csArguments)
         m_csOutput += csTemp.Left(reDword);
     }
     while(res);
+	bigit::Logger::Debug("ExecuteExternalFile return:%s",m_csOutput.GetBuffer());
     return m_csOutput;
 }
+
+int ReadToken(std::string src, int start, char tc, std::string& out)
+{
+	int pos = start;
+	out.clear();
+	while(pos < src.size())
+	{
+		if (src.at(pos) != tc)
+			break;
+		++pos;
+	}
+
+	if (pos >= src.size())
+		return pos;
+
+	while(pos < src.size())
+	{
+		const char c = src.at(pos);
+		if (c == tc)
+			break;
+		out.append(1,c);
+		++pos;
+	}
+	return pos;
+}
+
+//格式化容量 unit:0-byte,1-K,2-M,3-G
+bool FormatSize(std::string src, std::string& out, int unit)
+{
+	char *endPtr = NULL;
+	char buf[128];
+	char cu[3] = {'K','M','G'};
+	int iu = unit;
+
+	unsigned long ul = strtoul(src.c_str(),&endPtr,10); 
+	double udl = ul;
+	while(udl>1024 && iu <= 3)
+	{
+		udl = udl/1024;
+		++iu;
+	}
+	sprintf(buf,"%10.2f",udl);
+	out = buf;
+
+	if (iu >0 )
+		out.append(1,cu[iu-1]);
+
+	return true;
+}
+

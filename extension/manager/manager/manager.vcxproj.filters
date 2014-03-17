@@ -28,6 +28,7 @@
     </ClCompile>
     <ClCompile Include="GetDataObject.cpp" />
     <ClCompile Include="tool.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="npapi.h" />
@@ -61,6 +62,7 @@
     <ClInclude Include="GetDataObject.h" />
     <ClInclude Include="Tool.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="npsimple.rc" />
