@@ -206,39 +206,6 @@ Object.defineProperty(DefineAppTools,"refreshPhoneStatus",{
         scope.refreshPhoneStatus();
     }
 });
-//卸载应用
-Object.defineProperty(DefineAppTools,"uninstall",{
-    value:function(){
-        chrome.storage.local.get(ManagePhoneStorage.FlagForIsUninstalling,function(item){
-            var flag = ManagePhoneStorage.FlagForIsUninstalling in item ? item[ManagePhoneStorage.FlagForIsUninstalling] : false;
-            if(flag){ //如果有应用正在卸载，则等待。
-                return;
-            }
-            //拿到卸载堆栈
-            chrome.storage.local.get(ManagePhoneStorage.WaitForUninstallStack,function(item){
-                var stack = ManagePhoneStorage.WaitForUninstallStack in item ? item[ManagePhoneStorage.WaitForUninstallStack] : [];
-                if(!stack || !stack.length){//如果卸载堆栈为空。则重置标志位为未卸载状态
-                    ManagePhoneStorage.setFlagForIsUninstalling(false);
-                    return;
-                }
-                //提取一个卸载的id
-                var unistallAppid = stack.pop();
-                console.log("pop appid is " + unistallAppid);
-                //调用插件进行卸载
-                ManagePhoneStorage.setFlagForIsUninstalling(true);//设置标志位为卸载状态
-                DefineAppTools.plugin.uninstall(unistallAppid,function(uninstallSuccess){
-                    if(!uninstallSuccess){
-                        console.log("卸载失败");
-                    }else{
-                        ManagePhoneStorage.removeAppFromAppList(unistallAppid);//移除应用列表队列
-                    }
-                     ManagePhoneStorage.setFlagForIsUninstalling(false);//设置标志位为未卸载状态
-                     ManagePhoneStorage.setAppUninstallStack(stack);//设置卸载队列    
-                });
-            });
-        });
-    }
-});
 
 chrome.storage.onChanged.addListener(function(changes,areaname){
     if(areaname != "local" ){
@@ -254,7 +221,7 @@ chrome.storage.onChanged.addListener(function(changes,areaname){
     }
     //监听 卸载应用堆栈变化
     if(changes[ManagePhoneStorage.WaitForUninstallStack]){
-        DefineAppTools.uninstall();
+        ManagePhoneStorage.uninstall();
     }
 
     //监听 卸载应用标志变化
@@ -262,7 +229,8 @@ chrome.storage.onChanged.addListener(function(changes,areaname){
         var newValue = changes[ManagePhoneStorage.FlagForIsUninstalling].newValue;
         var oldValue = changes[ManagePhoneStorage.FlagForIsUninstalling].oldValue;
         if(newValue != oldValue){
-             DefineAppTools.uninstall();
+             ManagePhoneStorage.uninstall();
         }
     }
+
 });

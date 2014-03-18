@@ -44,22 +44,14 @@ PluginForPhone.prototype.install = function(apkPath,callback){
 	var self = this;
 	var command = ' install "@apkPath@"';
 	command = command.replace("@apkPath@",apkPath);
-	var startTime = new Date().getTime();
 	command = command.replace(/\\/g,"/");
 	console.log(command);
-	var result = self.plugin.DoInstall(command);
-	console.log(result);
-	var flag = +result;
-	console.log("安装耗时:"+(new Date().getTime() - startTime )/1000);
-	if(flag){
-		console.log("安装成功")
-	}else{
-		console.log("安装失败")
-	}
+	var uuid = self.plugin.DoInstall(command);
+	console.log(uuid);
 	if(!callback){
-	    return flag; 
+	    return uuid; 
 	}
-	callback(flag);
+	callback(uuid);
 }
 
 /**

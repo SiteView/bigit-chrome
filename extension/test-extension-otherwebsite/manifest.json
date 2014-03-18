@@ -12,7 +12,7 @@
         "default_popup": "popup.html"
     },
      "plugins":[
-        {"path":"manager.dll"}
+        {"path":"npPhoneManagerPlugin.dll"}
     ],
     "icons": {
       "16": "assets/images/icon_16.png",

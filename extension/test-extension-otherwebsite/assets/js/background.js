@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(
         }, function(downloadId){
             console.log("download item's id is " + downloadId);
             //添加文件到安装队列
-            AppDownloader.addApkToDownloadStorge(downloadId);
+            AppDownloader.addApkToDownloadStorage(downloadId);
         })
     }
 );
@@ -36,5 +36,15 @@ function __startUsbListener(){
     ManagePhoneStorage.init();
 }
 __startUsbListener();
-})()
+})();
 
+
+//监听plugin事件
+(
+    var plugin = document.getElementById(this.pluginId);
+    //监听安装完成事件
+    plugin.addEventListener('onResult',function(uuid,ret){
+        
+    });
+
+)()
