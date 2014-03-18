@@ -86,6 +86,22 @@ message SMSList {
   repeated SMSInfo sms = 1;
  
 }
+
+message FileInfo{
+  required string right = 1;
+  required string owner = 2;
+  required string modify = 3;
+  optional string size = 4;
+  required string date = 5;
+  required string time = 6;
+  required string name = 7;
+  required string path = 8;
+}
+
+message FileList{
+  repeated FileInfo file = 1;
+}
+
 message testobj
 {
  required string name = 1;
