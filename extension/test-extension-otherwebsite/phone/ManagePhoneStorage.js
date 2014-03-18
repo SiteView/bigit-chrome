@@ -13,6 +13,9 @@ Object.defineProperties(ManagePhoneStorage,{
 	},
 	"FlagForIsUninstalling":{ //正在卸载的标志
 		value:"_BIGIT_PHONEMANAGE_FlagForIsUninstalling"
+	},
+	"DoUninstallingApk":{//正在卸载的apk信息
+		value:"_BIGIT_PHONEMANAGE_DoUninstallingApk_"
 	}
 });
 
@@ -93,40 +96,11 @@ Object.defineProperty(ManagePhoneStorage,"init",{
 	value:function(){
 		//初始化卸载标志位
 		ManagePhoneStorage.setFlagForIsUninstalling(false);
-
 		var plugin = new PluginForPhone();
-		var flag = 0;
-		var refreshTime = 2*1000; //刷新时间
-		var checkAppListPrepareStatus = function(){
-			var status = +plugin.checkAppListPrepareStatus();//转string 0为 number 0
-			if(!status){
-				setTimeout(checkAppListPrepareStatus,500);
-				return;
-			}
-			var list = plugin.getAppList();
-			ManagePhoneStorage.saveAppList(list);
-		}
-		var checkPhoneConnectStatus = function(){
-			var status  = +plugin.checkDeviceStatus(); //转string 0为 number 0
-			//如果两次状态相同
-			if(flag === status){
-				setTimeout(checkPhoneConnectStatus,refreshTime);
-				return;
-			}
-			//两次状态不同，则usb连接或断开
-			flag = status; //记录本次usb状态
-
-			if(!status){ //如果连接 -> 断开 状态，清空本地数据
-				console.log("usb disconnect");
-				ManagePhoneStorage.clearAll();
-			}else{ //断开 -> 连接状态，设置本地数据
-				var deviceInfo = plugin.getDeviceInfo();
-				ManagePhoneStorage.saveDeviceInfo(deviceInfo);
-				checkAppListPrepareStatus();
-			}
-			setTimeout(checkPhoneConnectStatus,refreshTime)
-		};
-		checkPhoneConnectStatus();
+		var deviceInfo = plugin.getDeviceInfo();
+		ManagePhoneStorage.saveDeviceInfo(deviceInfo);
+		var list = plugin.getAppList();
+		ManagePhoneStorage.saveAppList(list);
 	}
 })
 
@@ -158,7 +132,7 @@ Object.defineProperty(ManagePhoneStorage,"setStackToUninstallStack",{
 		chrome.storage.local.set(storage);
 	}
 });
-//添加app到 卸载堆栈
+//添加app到 等待 卸载堆栈
 Object.defineProperty(ManagePhoneStorage,"addAppToUninstallStack",{
 	value:function(appid){
 		ManagePhoneStorage.getAppUninstallStack(function(list){
@@ -167,17 +141,31 @@ Object.defineProperty(ManagePhoneStorage,"addAppToUninstallStack",{
 		});
 	}
 });
-
-//赋值卸载堆栈
+//移除app从等待卸载堆栈
+Object.defineProperty(ManagePhoneStorage,"removeAppForUninstallStack",{
+	value:function(appid,callback){
+		ManagePhoneStorage.getAppUninstallStack(function(stack){
+			for(var i = 0; i < stack.length ; i++){
+				if(stack[i] === appid){
+					stack.splice(i,1);
+					ManagePhoneStorage.setAppUninstallStack(stack,callback);
+					break;
+				}
+			}
+		});
+	}
+});
+//赋值等待卸载堆栈
 Object.defineProperty(ManagePhoneStorage,"setAppUninstallStack",{
-	value:function(list){
+	value:function(list,callback){
 		var storage = {};
 		storage[ManagePhoneStorage.WaitForUninstallStack] = list;
 		chrome.storage.local.set(storage);
+		callback && callback();
 	}
 })
 
-//获取卸载队列
+//获取等待卸载队列
 Object.defineProperty(ManagePhoneStorage,"getAppUninstallStack",{
 	value:function(callback){
 		chrome.storage.local.get(ManagePhoneStorage.WaitForUninstallStack,function(item){
@@ -210,6 +198,50 @@ Object.defineProperty(ManagePhoneStorage,'getFlagForIsUninstalling',{
 	}
 });
 
+//获取正在 卸载APK信息
+Object.defineProperty(ManagePhoneStorage,"getDoUninstallingApk",{
+	value:function(callback){
+		chrome.storage.local.get(ManagePhoneStorage.DoUninstallingApk,function(item){
+			var stack = ManagePhoneStorage.DoUninstallingApk in item 
+                			? item[ManagePhoneStorage.DoUninstallingApk]
+				: {};
+                		callback(stack);
+              	});
+	}
+})
+//设置正在 卸载APK信息
+Object.defineProperty(ManagePhoneStorage,"setDoUninstallingApk",{
+	value:function(apk){
+		var storage = {};
+		storage[ManagePhoneStorage.DoUninstallingApk] = apk;
+		chrome.storage.local.set(storage);
+	}
+})
+
+
+//移除appid 从正在卸载堆栈
+Object.defineProperty(ManagePhoneStorage,"finishUninstall",{
+	value:function(uuid,result){
+		ManagePhoneStorage.getDoUninstallingApk(function(apk){
+			if(apk.uuid != uuid){
+				return;
+			}
+			ManagePhoneStorage.removeAppForUninstallStack(apk.appId,function(){
+				////设置标志位为未卸载状态
+				ManagePhoneStorage.setFlagForIsUninstalling(false);
+				console.log("finishUninstall:");
+				console.log(apk);
+				if(result){
+					console.log("卸载成功");
+					ManagePhoneStorage.removeAppFromAppList(apk.appId);//移除应用列表队列
+				}else{
+					console.log("卸载失败");
+				}
+			});
+		});
+	}
+});
+
 Object.defineProperty(ManagePhoneStorage,"uninstall",{
 	value:function(){
 		ManagePhoneStorage.getFlagForIsUninstalling(function(flag){
@@ -227,14 +259,10 @@ Object.defineProperty(ManagePhoneStorage,"uninstall",{
 				//调用插件进行卸载
 				ManagePhoneStorage.setFlagForIsUninstalling(true);//设置标志位为卸载状态
 				var plugin = new PluginForPhone();
-				plugin.uninstall(unistallAppid,function(uninstallSuccess){
-					if(!uninstallSuccess){
-						console.log("卸载失败");
-					}else{
-						ManagePhoneStorage.removeAppFromAppList(unistallAppid);//移除应用列表队列
-					}
-					ManagePhoneStorage.setFlagForIsUninstalling(false);//设置标志位为未卸载状态
-					ManagePhoneStorage.setAppUninstallStack(stack);//设置卸载队列    
+				var uuid = plugin.uninstall(unistallAppid);
+				ManagePhoneStorage.setDoUninstallingApk({
+					uuid:uuid,
+					appId:unistallAppid
 				});
 			});
 		});

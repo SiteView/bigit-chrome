@@ -24,8 +24,8 @@ Object.defineProperties(AppDownloader,{
 	"FlagForApkInstalling":{//正在安装应用的标志
 		value:"_flagForApkInstalling_"
 	},
-	'InstallingStack':{//正在安装的队列
-		value:"_apkInstallingStack_"
+	'InstallingApk':{//正在安装的队列
+		value:"_apkInstallingApk_"
 	}
 });
 
@@ -148,8 +148,9 @@ Object.defineProperty(AppDownloader,"removeApkFormInstallStorage",{
 	value:function(downloadId,callback){
 		AppDownloader.getApkInstallStorage(function(stack){
 			for(var i = 0; i < stack.length;i++){
-				if(downloadId == stack[i].id){
+				if(downloadId == stack[i]){
 					stack.splice(i,1);
+					console.log("removeApkFormInstallStorage: stack[i]" + stack[i]+"=="+ downloadId);
 					AppDownloader.setStackToInstallStorage(stack,callback);
 					break;
 				}
@@ -158,68 +159,50 @@ Object.defineProperty(AppDownloader,"removeApkFormInstallStorage",{
 	}
 });
 
-//设置正在安装的任务队列
-Object.defineProperty(AppDownloader,"setStackToInstallingStorage",{
-	value:function(stack){
-		var storage = {};
-		storage[AppDownloader.InstallingStack]=stack;
-		chrome.storage.local.set(storage);
-	}
-});
+
 
 //获取正在安装的任务队列
-Object.defineProperty(AppDownloader,"getStackToInstallingStorage",{
+Object.defineProperty(AppDownloader,"getInstallingApk",{
 	value:function(callback){
-		chrome.storage.local.get(AppDownloader.InstallingStack,function(storage){
-	    		var stack  = AppDownloader.InstallingStack in storage
-	    				? storage[ AppDownloader.InstallingStack]
-	    				:  []
-	    		callback(stack);
+		chrome.storage.local.get(AppDownloader.InstallingApk,function(storage){
+	    		var apk  = AppDownloader.InstallingApk in storage
+	    				? storage[ AppDownloader.InstallingApk]
+	    				:  {}
+	    		callback(apk);
 		});
 	}
 });
+
 //添加任务到正在安装队列
-Object.defineProperty(AppDownloader,"addApkToInstallingStorage",{
-	value:function(item){
-		AppDownloader.getStackToInstallingStorage(function(installingStack){
-			installingStack.push(item);
-			AppDownloader.setStackToInstallingStorage(installingStack);
-		});	
+Object.defineProperty(AppDownloader,"setInstallingApk",{
+	value:function(apk){
+		var storage = {};
+		storage[AppDownloader.InstallingApk] = apk;
+		
+		chrome.storage.local.set(storage);
 	}
 });
 
 //某个安装任务完成
 Object.defineProperty(AppDownloader,"finishApkInstall",{
 	value:function(uuid,flag){
-		//AppDownloader.setFlagForApkInstalling(false);//非安装
-
-		AppDownloader.getStackToInstallingStorage(function(stack){
-			var item = {};
-			//1.将uuid移出正在安装的InstallingStorage堆栈
-			for(var i = 0;i < stack.length;i++){
-				if(uuid === stack[i].uuid){
-					item = stack[i];
-					stack.splice(i,1);
-					break;
-				}
+		AppDownloader.getInstallingApk(function(item){
+			if(uuid != item.uuid){
+				return;
 			}
-			console.log("移除:");
-			console.log(item);
 			//2. 将uuid关联的fileId 移出等待安装的installStorage队列
 			AppDownloader.removeApkFormInstallStorage(item.fileId,function(){
 				AppDownloader.setFlagForApkInstalling(false);//非安装
+				console.log("finish install  :");
+				console.log(item);
+				//3.刷新应用列表
+				if(flag){
+					ManagePhoneStorage.refreshAppList();
+					AppNotifications.tip("success",item.filename);
+				}else{
+					AppNotifications.tip("fail",item.filename)
+				}
 			});
-
-			//3.设置InstallingStorage
-			AppDownloader.setStackToInstallingStorage(stack);
-			
-			//3.刷新应用列表
-			if(flag){
-				ManagePhoneStorage.refreshAppList();
-				AppNotifications.tip("success",item.filename);
-			}else{
-				AppNotifications.tip("fail",item.filename)
-			}
 		});
 	}
 });
@@ -284,7 +267,7 @@ Object.defineProperty(AppDownloader,"installApp",{
 					}
 					var plugin = new PluginForPhone();
 					var uuid = plugin.install(item.filename);
-					AppDownloader.addApkToInstallingStorage({
+					AppDownloader.setInstallingApk({
 						uuid:uuid,
 						filename:item.filename,
 						fileId:item.id
