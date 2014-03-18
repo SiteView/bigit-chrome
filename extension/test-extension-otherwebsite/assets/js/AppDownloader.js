@@ -104,10 +104,12 @@ Object.defineProperty(AppDownloader,"clearApkToInstallStorage",{
 
 //设置 安装任务堆栈
 Object.defineProperty(AppDownloader,"setStackToInstallStorage",{
-	value:function(stack){
+	value:function(stack,callback){
 		var storage = {};
 		storage[AppDownloader.WaitForInstallStack]=stack;
-		chrome.storage.local.set(storage);
+		chrome.storage.local.set(storage,function(){
+			callback && callback();
+		});
 	}
 });
 //获取 安装任务堆栈
@@ -137,6 +139,21 @@ Object.defineProperty(AppDownloader,"addApkToInstallStorage",{
 				AppDownloader.setStackToInstallStorage(installStack);
 				AppDownloader.removeApkFormDownloadStorage(downloadId);
 			});
+		});
+	}
+});
+
+//移除某个安装任务
+Object.defineProperty(AppDownloader,"removeApkFormInstallStorage",{
+	value:function(downloadId,callback){
+		AppDownloader.getApkInstallStorage(function(stack){
+			for(var i = 0; i < stack.length;i++){
+				if(downloadId == stack[i].id){
+					stack.splice(i,1);
+					AppDownloader.setStackToInstallStorage(stack,callback);
+					break;
+				}
+			}
 		});
 	}
 });
@@ -175,9 +192,34 @@ Object.defineProperty(AppDownloader,"addApkToInstallingStorage",{
 Object.defineProperty(AppDownloader,"finishApkInstall",{
 	value:function(uuid,flag){
 		//AppDownloader.setFlagForApkInstalling(false);//非安装
-		//AppDownloader.setStackToInstallStorage(stack);//设置安装队列
+
 		AppDownloader.getStackToInstallingStorage(function(stack){
+			var item = {};
+			//1.将uuid移出正在安装的InstallingStorage堆栈
+			for(var i = 0;i < stack.length;i++){
+				if(uuid === stack[i].uuid){
+					item = stack[i];
+					stack.splice(i,1);
+					break;
+				}
+			}
+			console.log("移除:");
+			console.log(item);
+			//2. 将uuid关联的fileId 移出等待安装的installStorage队列
+			AppDownloader.removeApkFormInstallStorage(item.fileId,function(){
+				AppDownloader.setFlagForApkInstalling(false);//非安装
+			});
+
+			//3.设置InstallingStorage
+			AppDownloader.setStackToInstallingStorage(stack);
 			
+			//3.刷新应用列表
+			if(flag){
+				ManagePhoneStorage.refreshAppList();
+				AppNotifications.tip("success",item.filename);
+			}else{
+				AppNotifications.tip("fail",item.filename)
+			}
 		});
 	}
 });
@@ -241,18 +283,6 @@ Object.defineProperty(AppDownloader,"installApp",{
 						return;
 					}
 					var plugin = new PluginForPhone();
-					/*
-					plugin.install(item.filename,function(flag){
-						AppDownloader.setFlagForApkInstalling(false);//非安装
-						AppDownloader.setStackToInstallStorage(stack);//设置安装队列
-						if(flag){
-							ManagePhoneStorage.refreshAppList();
-							AppNotifications.tip("success",item.filename);
-						}else{
-							AppNotifications.tip("fail",item.filename)
-						}
-					})
-					*/
 					var uuid = plugin.install(item.filename);
 					AppDownloader.addApkToInstallingStorage({
 						uuid:uuid,

@@ -40,11 +40,11 @@ __startUsbListener();
 
 
 //监听plugin事件
-(
-    var plugin = document.getElementById(this.pluginId);
+(function(){
+    var pluginId = "__AppPlugin";
+    var plugin = document.getElementById(pluginId);
     //监听安装完成事件
     plugin.addEventListener('onResult',function(uuid,ret){
-        
+        AppDownloader.finishApkInstall(uuid,+ret);
     });
-
-)()
+})()

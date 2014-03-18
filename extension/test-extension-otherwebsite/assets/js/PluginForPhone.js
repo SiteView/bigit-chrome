@@ -61,7 +61,6 @@ PluginForPhone.prototype.getDeviceInfo = function(callback){
 	var self = this;
 	var result = self.plugin.GetDeviceInfo('');
 	console.log("获取的设备信息是：");
-	console.log(result)
        	result = btoa(result);
         	var message = self.PhoneProtoBuilder.DeviceInfo.decode64(result);
         	console.log("获取的设备信息完成");
