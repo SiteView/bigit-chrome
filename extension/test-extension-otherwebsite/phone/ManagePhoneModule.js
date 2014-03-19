@@ -185,6 +185,12 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
             templateUrl: 'phone/ManagePhoneTopNavBar.html'
         };
     });
+PhoneManage.directive('bigitContent',function(){ //展示顶部导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneContent.html'
+        };
+    });
 
 var DefineAppTools = function(){};
 Object.defineProperty(DefineAppTools,"plugin",{

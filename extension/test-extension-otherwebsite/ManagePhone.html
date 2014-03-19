@@ -21,13 +21,16 @@
   <link rel="stylesheet" href="assets/css/ManagePhone.css" type="text/css">
 </head>
 <body>
+  <div id="top" class="topnavbar" >
+    <bigit-topnavbar></bigit-topnavbar>
+  </div>
 <div class="container-fluid full-height">
   	<div class="row full-height">
-  		<div class="col-md-2 well full-height sidenavbar">
+  		<div id="left" class="col-md-2 full-height sidenavbar">
         <bigit-sidenavbar></bigit-sidenavbar>
       </div>
-  		<div class="col-md-10 topnavbar" >
-        <bigit-topnavbar></bigit-topnavbar>
+  		<div id="content" class="col-md-10 topnavbar">
+        <bigit-content></bigit-content>
         <div ng-view></div>
       </div>
     </div>

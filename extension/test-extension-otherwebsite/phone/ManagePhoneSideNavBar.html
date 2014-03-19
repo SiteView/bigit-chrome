@@ -7,12 +7,13 @@
     </div>
 </div>
 <div style='display:hidden' ng-controller='AppsManagerModuleCtrl'></div>
-<ul id="side_nav" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
+<div class="">
+<ul id="menu" class="nav nav-pills nav-stacked"  ng-controller='SideNavModuleController'>
 	<li ng-class="{active: isActive('/')}"><a href="#/">Welcome to BIGIT</a></li>
 	<li><a href="#">App Store</a></li>
 	<li ng-class="{active: isActive('/MyApps/AppList')}">
 		<a href="#/MyApps/AppList">
-			<span class="badge pull-right">{{phoneManageAppService.appsCount}}</span>
+			<span class="badge badge-inverse pull-right">{{phoneManageAppService.appsCount}}</span>
 			My App
 		</a>
 	</li>
@@ -23,3 +24,4 @@
 	<li><a href="#">My Sms</a></li>
 	<li ng-class="{active: isActive('/MyFiles')}"><a href="#/MyFiles">My Files</a></li>
 </ul>
+</div>
