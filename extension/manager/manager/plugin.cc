@@ -2,20 +2,8 @@
 //
 // CPlugin class implementation
 //
+
 #include "phone.pb.h"
-#include "GetDataObject.h"
-#include <Tool.h>
-
-
-#include <json/json.h>
-
-#include <base64/base64.h>
-
-#include <TinyThread/tinythread.h>
-#include <TinyThread/fast_mutex.h>
-
-extern PhoneDataObject task;
-
 #include<string>
 #include <string.h>
 #include <stdlib.h>
@@ -27,14 +15,33 @@ extern PhoneDataObject task;
 #include <iostream>
 #include <fstream>
 #endif
+
+
+#include <TinyThread/tinythread.h>
+#include <TinyThread/fast_mutex.h>
+
+
+#include "GetDataObject.h"
+#include <Tool.h>
+
+
+#include <json/json.h>
+
+#include <base64/base64.h>
+
+
+#include "Logger.h"
+#ifndef WIN32
+#include "iconv.h"
+#endif
+
 // 接口定义
 const char *kDoCommand =    "DoCommand";
 const char *kAaptCommand =  "AaptCommand";
 const char *kGetDeviceInfo = "GetDeviceInfo";
 const char *kGetStorageInfo = "GetStorageInfo";
 const char *kGetAppList = "GetAppList";
-const char *kGetPictureList = "GetPictureList";
-const char *kGetVideoList = "GetVideoList";
+const char *kGetPictureList = "GetPictureList";const char *kGetVideoList = "GetVideoList";
 const char *kGetMusicList = "GetMusicList"; //
 const char *kGetAddressBook = "GetAddressBook";//通信录
 const char *kGetSMSList = "GetSMSList"; // 短信列表
@@ -46,6 +53,8 @@ const char *kCheckApplist = "CheckApplist";
 
 
 const char *kGetFilelist = "GetFilelist"; // 文件系统
+const char *kPullFile = "PullFile";
+const char *kPushFile = "PushFile";
 
 
 
@@ -58,31 +67,6 @@ using namespace tthread;
 
 extern PhoneDataObject task;
 
-
-#if defined(WIN32)
-typedef SOCKET Socket;
-#else
-typedef int Socket;
-#endif
-
-void CloseSocket(Socket socket)
-{
-#if defined(WIN32)
-    closesocket(socket);
-#else
-    close(socket);
-#endif
-}
-
-
-CString GetAppPath()
-{
-    CString strPath;
-    TCHAR   exeFullPath[MAX_PATH];
-    ::GetModuleFileName(NULL, exeFullPath, MAX_PATH);
-    strPath = exeFullPath;
-    return strPath.Left(strPath.ReverseFind('\\'));
-}
 
 
 static NPClass plugin_ref_obj =
@@ -103,17 +87,19 @@ static NPClass plugin_ref_obj =
 ScriptablePluginObject::ScriptablePluginObject(NPP instance)
     : npp(instance)
 {
-
+	bigit::Logger::Debug("ScriptablePluginObject construct.");
 
 }
 
 NPObject *ScriptablePluginObject::Allocate(NPP instance, NPClass *npclass)
 {
+	bigit::Logger::Debug("ScriptablePluginObject Allocate.");
     return (NPObject *)(new ScriptablePluginObject(instance));
 }
 
 void ScriptablePluginObject::Deallocate(NPObject *obj)
 {
+	bigit::Logger::Debug("ScriptablePluginObject Deallocate.");
     delete (ScriptablePluginObject *)obj;
 }
 
@@ -138,67 +124,73 @@ bool ScriptablePluginObject::InvokeDefault(NPObject *obj, const NPVariant *args,
 static int mb_get_len(NPString src)
 {
     return MultiByteToWideChar(CP_UTF8, 0, src.UTF8Characters,
-                               src.UTF8Length, NULL, 0) + 1;
+                               src.UTF8Length, NULL, 0);
 }
 static int mb_to_wchar(NPString src, wchar_t *buf, int mb_len)
 {
     int ret = MultiByteToWideChar(CP_UTF8, 0, src.UTF8Characters,
                                   src.UTF8Length, buf, mb_len);
-    *(buf + mb_len - 1) = '\0';
+	if (!ret)
+		bigit::Logger::Debug("MultiByteToWideChar err:%d",GetLastError());
+	else
+		bigit::Logger::Debug("MultiByteToWideChar ret:%d",ret);
+    *(buf + mb_len) = L'\0';
     return ret;
 }
-#if 1
-std::string ScriptablePluginObject::devices()
+
+//从UTF8编码抓为GBK编码
+static int utf8togbk(NPString src, std::string& out)
 {
-    struct sockaddr_in client;
-    client.sin_family = AF_INET;
-    client.sin_port = htons(5037);
-    client.sin_addr.s_addr = inet_addr("127.0.0.1");
-    Socket sock = socket(AF_INET, SOCK_STREAM, 0);
+#ifndef WIN32 
+	iconv_t conveter=iconv_open("GBK","UTF-8");
+	unsigned int len = iconv(conveter,&(src.UTF8Characters), &(src.UTF8Length),NULL,0);
+	char *gbk= new char[len+1];
+	iconv(conveter,&(src.UTF8Characters), &(src.UTF8Length),&gbk, &len);
+	out = gbk;
+	return len;
+#else
+	
+	if (src.UTF8Length <=0) return 0;
 
-    if (connect(sock, (struct sockaddr *)&client, sizeof(client)) != 0)
-    {
-        CloseSocket(sock);
-        return "Error: could not connect to ADB";
-    }
+	int len = MultiByteToWideChar(CP_UTF8, 0, src.UTF8Characters,
+                               src.UTF8Length, NULL, 0);
+	wchar_t *buf = new wchar_t[len+1];
+	memset(buf,0,sizeof(wchar_t)*(len+1));
+	int ret = MultiByteToWideChar(CP_UTF8, 0, src.UTF8Characters,
+                                  src.UTF8Length, buf, len);
 
-    std::string devices = "000Chost:devices";
-    if (send(sock, devices.c_str(), devices.length(), 0) == -1)
-    {
-        CloseSocket(sock);
-        return "Error: could not send command";
-    }
+	 bigit::Logger::Debug("utf8togbk,ret1:%d",ret);
+	 int len2 = WideCharToMultiByte(CP_ACP,0,buf,-1,NULL,0,0,FALSE);
+	 char *gbk= new char[len2+1];
+	 memset(gbk,0,sizeof(char)*(len2+1));
+	 ret = WideCharToMultiByte(CP_ACP,0,buf,len,gbk,len2,0,FALSE);
 
-    std::string response;
-    char buffer[10240];
-    int result;
-    do
-    {
-        result = recv(sock, &buffer[0], 10240, 0);
-        if (result > 0)
-            response += std::string(&buffer[0], result);
-        else if (result < 0)
-            response = "Error: could not read response";
-    }
-    while (result != 0);
-    CloseSocket(sock);
-    return response;
+	 bigit::Logger::Debug("utf8togbk,ret2:%d,gbk:%s",ret,gbk);
+	 out = gbk;
+	 delete buf;
+	
+	 return len;
+#endif
 }
 
-#endif
 
 bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
                                     const NPVariant *args, uint32_t argCount,
                                     NPVariant *result)
 {
+	bigit::Logger::Debug("ScriptablePluginObject Invoke start.");
+
     ScriptablePluginObject *thisObj = (ScriptablePluginObject *)obj;
     char *name = npnfuncs->utf8fromidentifier(methodName);
 
     NPString arg0 = NPVARIANT_TO_STRING(args[0]);
 
-    int	agrlen = mb_get_len(arg0);
-    wchar_t *buf = new wchar_t[agrlen];
-    mb_to_wchar(arg0, buf, agrlen);
+    //int	agrlen = mb_get_len(arg0);
+	if (arg0.UTF8Length >0)
+		bigit::Logger::Debug("args:%s,len:%d",arg0.UTF8Characters,arg0.UTF8Length);
+	//bigit::Logger::Debug("mb_get_len:%d",agrlen);
+    //wchar_t *buf = new wchar_t[agrlen+1];
+    //mb_to_wchar(arg0, buf, agrlen);
 
     bool ret_val = false;
     if (!name)
@@ -206,10 +198,13 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         return ret_val;
 
     }
+	std::string arg;
+	utf8togbk(arg0,arg);
+	bigit::Logger::Debug("Invoke method:%s, arg:%s",name, arg.c_str());
+
 	 if (!strcmp(name, kCheckApplist))
     {
 		ret_val = true;
-		delete buf;
 		string restr;
 		if(task.hasApplist)
         {
@@ -224,12 +219,14 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         strcpy(npOutString, restr.c_str());
+
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
+
         STRINGZ_TO_NPVARIANT(npOutString, *result);
 	 }
 	 if (!strcmp(name, kCheckDevice))
     {
 		ret_val = true;
-		delete buf;
 		string restr;
         if(task.isConnected )
         {
@@ -244,13 +241,13 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         strcpy(npOutString, restr.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
 	 }
     if (!strcmp(name, kDoInstall))
     {
         ret_val = true;
-		delete buf;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
+		CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, arg.c_str());
         string all = CString2String(ss);
         string::size_type re = all.find("Success");
         string restr;
@@ -267,12 +264,13 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         strcpy(npOutString, restr.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kDoUninstall))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
+		CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, arg.c_str());
         string all = CString2String(ss);
         string::size_type re = all.find("Success");
         string restr;
@@ -289,13 +287,13 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         strcpy(npOutString, restr.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
 
     if (!strcmp(name, kDoTest))
     {
         ret_val = true;
-		delete buf;
         bigit::testlist tetsobj_;
         bigit::testobj *pp = tetsobj_.add_obj();
         pp->set_name(string("tste1"));
@@ -309,111 +307,100 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         tetsobj_.SerializeToArray(npOutString, size);
-
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetFilelist))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, "shell ls -lR /storage");
+		string cmd = "shell ls -l ";
+		cmd = cmd + arg;
+		CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, cmd.c_str());
 
         string all = CString2String(ss);
 
-        // char line[512];
         string buffer;
-
-        // all = replace(all, "\x0d\0a", "");
-//        outdata.open("c:\\out.dat");
-        ;
+		bigit::FileList fileList;
         stringstream istr(all);
-        //  istr.getline(all.c_str(),256);
         std::istringstream iss(all);
         std::string line;
         std::string pdir("/");
-
+		
         while (getline(iss, line))
         {
-            // Do something with `line`
-            //outdata << line;
-            if(line.size() <= 1)
-                continue;
-            if(line.size() > 2 && line.at(0) == '/'  )
-            {
-//                outdata << "ispdir   " << line.erase(line.size() - 1) << endl;
-                pdir = line.erase(line.size() - 1);
-            }
-            else
-            {
-                if(line.size() > 1 && line.at(0) == 'd')
-                {
-                    std::istringstream isstr(line);
-                    std::string str;
-                    int index = 0;
-                    while (std::getline(isstr, str, ' '))
-                    {
-                        if(str.size() > 1)
-                        {
-                            index++; //  4: date 5:time 6:name
-                            if(index == 6)
-                            {
-                                str = pdir + "/" + str;
-                            }
-//                            outdata << "isdir  " << index << " " << str << endl;
-                        }
-                    }
-                }
-                else
-                {
-                    std::istringstream isstr(line);
-                    std::string str;
-                    //outdata << "isfile  "<<line << endl;
-                    int index = 0;
-                    while (std::getline(isstr, str, ' '))
-                    {
-                        if(str.size() > 1)
-                        {
-                            index++; // 4: size 5: date 6:time 7:name
-                            if(index == 7)
-                            {
-                                str = pdir + "/" + str;
-                            }
-       //                     outdata << "isfield  " << index << " " << str << endl;
-                        }
-                    }
-                }
-            }
-        }
-//        outdata.close();
-        //     for(int i = 0; all.size() > 2 ; i++)
-        //     {
-        //         string::size_type linelast =  all.find_first_of(":0x0d"); //  此行为父目录
-        //         string::size_type linefirst = all.find("0x0A");
-        //if(linelast != std::string::npos &&  )
-        //         string strprosion = all.substr(linefirst, linelast - linefirst);
+			//bigit::Logger::Debug("process line:%s", line.c_str());
+			std::string right;	//权限
+			std::string author;	
+			std::string owner;
+			std::string size;
+			std::string date;
+			std::string time;
+			std::string name;
+			int pos=0;
 
-        //         Json::Value root;
-        //         Json::Value arrayObj;
-        //         Json::Value item;
-        //     }
+			
+			if(line.size() <= 1)
+				continue;
+			//is File
+			if (line.at(0)=='-' || line.at(0) == 'd')
+			{
+				pos = ReadToken(line, pos, ' ', right);
+				pos = ReadToken(line, pos, ' ', owner);
+				pos = ReadToken(line, pos, ' ', author);
+				if (line.at(0)=='-')
+					pos = ReadToken(line, pos, ' ', size);
+				pos = ReadToken(line, pos, ' ', date);
+				pos = ReadToken(line, pos, ' ', time);
+				pos = ReadToken(line, pos, ' ', name);
+				bigit::Logger::Debug("get file: %s %s %s %s %s ,name:%s",right.c_str(),owner.c_str(), size.c_str(),
+					date.c_str(), time.c_str(), name.c_str());
+				
+				//add to list
+				bigit::FileInfo *fi = fileList.add_file();
+				fi->set_right(right);
+				fi->set_owner(owner);
+				fi->set_modify(author);
+				if (line.at(0)=='-'){
+					std::string fsize;
+					::FormatSize(size, fsize, 0);
+					fi->set_size(fsize);
+				}
+				fi->set_date(date);
+				fi->set_time(time);
+				fi->set_name(name);
+				fi->set_path(arg + "/" + name);
+				
+			}
+			
+		}
+		std::string aProtocolBuffer;
+        fileList.SerializeToString(&aProtocolBuffer);
+        std::string encData = base64_encode(reinterpret_cast<const unsigned char *>(aProtocolBuffer.c_str()), aProtocolBuffer.length());
 
-    }
+		char *npOutString = (char *)npnfuncs->memalloc(encData.size() + 1);
+		memset(npOutString, 0x0, encData.size() + 1);
+		strcpy(npOutString, encData.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
+        STRINGZ_TO_NPVARIANT(npOutString, *result);
+	}
 
 #if 1
 
     if (!strcmp(name, kGetAppList))
     {
         ret_val = true;
-        delete buf;
+        //delete buf;
  		char *npOutString = (char *)npnfuncs->memalloc(::task.AppList.size() + 1);
         memset(npOutString, 0x0, task.AppList.size() + 1);
         strcpy(npOutString, task.AppList.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
     if (!strcmp(name, kGetPictureList))
     {
         ret_val = true;
         CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, " shell ls -lR /storage");
-        delete buf;
+        //delete buf;
 
         bigit::ResList plist;
         int last = 0;
@@ -453,7 +440,7 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
     if (!strcmp(name, kGetDeviceInfo))
     {
         ret_val = true;
-        delete buf;
+        //delete buf;
 
 		int size = task.DeviceInf.size();
         char *npOutString = (char *)npnfuncs->memalloc(size + 1);
@@ -461,13 +448,14 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
 		strcpy(npOutString,task.DeviceInf.c_str());
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
 
     if (!strcmp(name, kGetStorageInfo))
     {
         ret_val = true;
-        delete buf;
+        //delete buf;
 
         CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, " shell busybox df -k | busybox grep storage_int");
         ss = ss.Trim();
@@ -502,14 +490,15 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         if (!npOutString)
             return false;
         StorageInfo.SerializeToArray(npOutString, size);
+		bigit::Logger::Debug("Invoke method:%s, return:%s.",name,npOutString);
         STRINGZ_TO_NPVARIANT(npOutString, *result);
     }
 
     if (!strcmp(name, kAaptCommand))
     {
         ret_val = true;
-        CString ss = ExecuteExternalFile("", buf);
-        delete buf;
+		CString ss = ExecuteExternalFile("", arg.c_str());
+        //delete buf;
 #ifdef UNCODE
         //获取宽字节字符的大小，大小是按字节计算的
         int len = WideCharToMultiByte(CP_UTF8, 0, ss, ss.GetLength(), NULL, 0, NULL, NULL);
@@ -534,8 +523,8 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         ret_val = true;
         //	CString ss = ExecuteExternalFile("c:\\aapt dump badging c:\\1.6.0219060.zip","");
         //	aapt dump badging 1.6.0219060.zip
-        CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, buf);
-        delete buf;
+		CString ss = ExecuteExternalFile(ADB_COMMAND_PATH, arg.c_str());
+        //delete buf;
 #ifdef UNCODE
         //获取宽字节字符的大小，大小是按字节计算的
         int len = WideCharToMultiByte(CP_ACP, 0, ss.GetBuffer(), ss.GetLength(), NULL, 0, NULL, NULL);
@@ -559,7 +548,9 @@ bool ScriptablePluginObject::Invoke(NPObject *obj, NPIdentifier methodName,
         npnfuncs->setexception(obj, "Unknown method");
     }
     npnfuncs->memfree(name);
+	bigit::Logger::Debug("ScriptablePluginObject Invoke end.");
     return ret_val;
+
 }
 
 bool ScriptablePluginObject::HasProperty(NPObject *obj, NPIdentifier propertyName)

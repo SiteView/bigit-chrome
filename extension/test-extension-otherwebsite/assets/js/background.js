@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(
         }, function(downloadId){
             console.log("download item's id is " + downloadId);
             //添加文件到安装队列
-            AppDownloader.addApkToDownloadStorge(downloadId);
+            AppDownloader.addApkToDownloadStorage(downloadId);
         })
     }
 );
@@ -35,6 +35,29 @@ function __startUsbListener(){
     console.log("启动usb监听进程");
     ManagePhoneStorage.init();
 }
-__startUsbListener();
-})()
+//__startUsbListener();
+})();
 
+
+//监听plugin事件
+(function(){
+    var pluginId = "__AppPlugin";
+    var plugin = document.getElementById(pluginId);
+    //监听安装完成事件
+    plugin.addEventListener('onResult',function(uuid,ret){
+        console.log(uuid +"======="+ret);
+        AppDownloader.finishApkInstall(uuid,+ret);
+        ManagePhoneStorage.finishUninstall(uuid,+ret)
+    });
+
+    //监听usb连接事件
+    plugin.addEventListener('onConnected',function(){
+        console.log("usb连接");
+        ManagePhoneStorage.init();
+    })
+    //监听usb断开事件
+    plugin.addEventListener('onDisconnected',function(){
+        console.log("usb断开");
+        ManagePhoneStorage.clearAll();// 断开 状态，清空本地数据
+    })
+})()
