@@ -27,8 +27,6 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
             console.log('uninstall :' + appId);
             ManagePhoneStorage.addAppToUninstallStack(appId);
         }
-        
-
         service = {
             'refreshAppListAtStorage':refreshAppListAtStorage,
             'getAppDetail':getAppDetail,
@@ -39,7 +37,6 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
         
         return service;
     });
-
 //管理基本状态 Service
 PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
         var service;
@@ -48,14 +45,13 @@ PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
         //刷新手机状态
         var refreshPhoneStatus = function(callback){
             ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
+                console.log("refreshPhoneStatus DeviceInfo：");            
                 if(!DeviceInfo || DeviceInfo.name === "nofound"){
-                    service.DeviceInfo = false;
-                    console.log("手机未连接");
+                    service.DeviceInfo = false;         
                  }else{
-                     console.log(DeviceInfo);
                     service.DeviceInfo = DeviceInfo;
-                    callback && callback();
-                 }     
+                 } 
+                  callback && callback();
             });
         }
         service = {
@@ -65,38 +61,24 @@ PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
         return service;
     });
 
-//手机的基本状态 Controller
-var PhoneMangeController = angular.module('PhoneManage.controller', ['PhoneManage.services']);
-//手机连接状态
-PhoneMangeController.controller("PhoneMangeConnectStatusCtrl",
-    [
-        '$scope',
-        'phoneBasicService',
-        function($scope,$phoneBasicService) {
-            //$scope.status = false;
-            $scope.phoneBasicService = $phoneBasicService;        
-            $scope.refreshPhoneStatus = function(){
-                $phoneBasicService.refreshPhoneStatus(function(){
-                      $scope.$apply();
-                });
-            }
-            //初始化数据
-            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
-                    if(!DeviceInfo || DeviceInfo.name === "nofound"){
-                        $scope.phoneBasicService.DeviceInfo = false;
-                        console.log("手机未连接");
-                    }else{
-                        $scope.phoneBasicService.DeviceInfo = DeviceInfo;
-                    }
-                     $scope.$apply();
-            });
-        }
-    ]);
+//程序入口  主ng-app
+var PhoneManage = angular.module('PhoneManage',[ 'ngRoute', 'PhoneManage.services' ]);
 
-
+//自定义指令
+PhoneManage.directive('bigitSidenavbar', function() { //展示侧边导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneSideNavBar.html'
+        };
+    });
+PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneTopNavBar.html'
+        };
+    });
 //应用管理
-var AppsManagerModule = angular.module('AppsManagerModule',['PhoneManage.services']);
-AppsManagerModule.controller("AppsManagerModuleCtrl",
+PhoneManage.controller("AppsManagerModuleCtrl",
     [
         '$scope',
         '$routeParams',
@@ -124,11 +106,34 @@ AppsManagerModule.controller("AppsManagerModuleCtrl",
         }
     ]);
 
-//侧边栏 服务。dom click listener //注入AppsManagerModule给router使用
-var SideNavModule = angular.module('SideNavModule', ['ngRoute','PhoneManage.services','AppsManagerModule']);
+//手机连接状态
+PhoneManage.controller("PhoneMangeConnectStatusCtrl",
+    [
+        '$scope',
+        'phoneBasicService',
+        function($scope,$phoneBasicService) {
+            //$scope.status = false;
+            $scope.phoneBasicService = $phoneBasicService;        
+            $scope.refreshPhoneStatus = function(){
+                $phoneBasicService.refreshPhoneStatus(function(){
+                      $scope.$apply();
+                });
+            }
+            //初始化数据
+            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
+                    if(!DeviceInfo || DeviceInfo.name === "nofound"){
+                        $scope.phoneBasicService.DeviceInfo = false;
+                        console.log("手机未连接");
+                    }else{
+                        $scope.phoneBasicService.DeviceInfo = DeviceInfo;
+                    }
+                     $scope.$apply();
+            });
+        }
+    ]);
 
 //侧边栏 服务的 小通知，如 应用数量等
-SideNavModule.controller("SideNavModuleController",
+PhoneManage.controller("SideNavModuleController",
     [
         '$scope',
         '$location',
@@ -142,8 +147,17 @@ SideNavModule.controller("SideNavModuleController",
         }
     ]);
 
+PhoneManage.filter('checkPhoneConnectStatus', function() {
+  return function(status) {
+    console.log("checkPhoneConnectStatus:");
+    console.log(status);
+    return status ? '已连接' : '未连接';
+  };
+});
+
+
 //路由功能
-SideNavModule.config(['$compileProvider','$routeProvider',
+PhoneManage.config(['$compileProvider','$routeProvider',
   function($compileProvider,$routeProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(chrome-extension):/);
     $routeProvider
@@ -163,28 +177,6 @@ SideNavModule.config(['$compileProvider','$routeProvider',
             controller:'PhoneMangeConnectStatusCtrl'
         })
   }]);
-
-//程序入口  主ng-app
-var PhoneManage = angular.module('PhoneManage',
-    [
-        'PhoneManage.controller',
-        'SideNavModule',
-        'ManagePhoneFilter'
-    ]);
-
-//自定义指令
-PhoneManage.directive('bigitSidenavbar', function() { //展示侧边导航栏
-        return {
-            restrict: 'E',
-            templateUrl: 'phone/ManagePhoneSideNavBar.html'
-        };
-    });
-PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
-        return {
-            restrict: 'E',
-            templateUrl: 'phone/ManagePhoneTopNavBar.html'
-        };
-    });
 
 var DefineAppTools = function(){};
 Object.defineProperty(DefineAppTools,"plugin",{

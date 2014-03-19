@@ -24,7 +24,7 @@ Object.defineProperty(ManagePhoneStorage,"clearAll",{
 		AppNotifications.connect(false);
 		var storage = {};
 		storage[ManagePhoneStorage.AppList] = [];
-		storage[ManagePhoneStorage.DeviceInfo] = [];
+		storage[ManagePhoneStorage.DeviceInfo] = false;
 		chrome.storage.local.set(storage);
 	}
 });
