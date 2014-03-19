@@ -151,7 +151,6 @@ PhoneManage.filter('checkPhoneConnectStatus', function() {
   };
 });
 
-
 //路由功能
 PhoneManage.config(['$compileProvider','$routeProvider',
   function($compileProvider,$routeProvider) {
@@ -174,33 +173,6 @@ PhoneManage.config(['$compileProvider','$routeProvider',
         })
   }]);
 
-//程序入口  主ng-app
-var PhoneManage = angular.module('PhoneManage',
-    [
-        'PhoneManage.controller',
-        'SideNavModule',
-        'ManagePhoneFilter'
-    ]);
-
-//自定义指令
-PhoneManage.directive('bigitSidenavbar', function() { //展示侧边导航栏
-        return {
-            restrict: 'E',
-            templateUrl: 'phone/ManagePhoneSideNavBar.html'
-        };
-    });
-PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
-        return {
-            restrict: 'E',
-            templateUrl: 'phone/ManagePhoneTopNavBar.html'
-        };
-    });
-PhoneManage.directive('bigitContent',function(){ //展示顶部导航栏
-        return {
-            restrict: 'E',
-            templateUrl: 'phone/ManagePhoneContent.html'
-        };
-    });
 
 //配置 多国语言
 PhoneManage.config(function($translateProvider) {
