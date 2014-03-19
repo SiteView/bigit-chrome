@@ -1,23 +1,25 @@
+<div style="padding: 15px">
 My Apps<br>
 Search : <input type="text" class="search-query" ng-model="query">
-<table class='table table-striped table-hover'>
+
+<table id="applistTable" style="table-layout: fixed" class='table table-striped table-hover'>
 	<thead>
 		<tr>
-			<th>App id</th>
-			<th>App name</th>
-			<th>App version</th>
-			<th>App size</th>
-			<th>App location</th>
-			<th>App Operate</th>
+			<th style="width: 20%">App id</th>
+			<th style="width: 20%">App name</th>
+			<th style="width: 10%">App version</th>
+			<th style="width: 10%">App size</th>
+			<th style="width: 20%">App location</th>
+			<th style="width: 20%">App Operate</th>
 		</tr>
     </thead>
     <tbody>
 		<tr ng-repeat='app in phoneManageAppService.appList | filter:query'>
-			<td>{{app.id}}</td>
-			<td>{{app.name}}</td>
-			<td>{{app.version}}</td>
-			<td>{{app.size}}</td>
-			<td>{{app.location}}</td>
+			<td style="width: 20%" class="text-style">{{app.id}}</td>
+			<td style="width: 20%" class="text-style">{{app.name}}</td>
+			<td style="width: 10%" class="text-style">{{app.version}}</td>
+			<td style="width: 10%" class="text-style">{{app.size}}</td>
+			<td style="width: 20%" class="text-style">{{app.location}}</td>
 			<td>
 				<button type="button" class="btn btn-default" ng-click='uninstall(app.id)'>uninstall</button>
 				<a  ng-href="/ManagePhone.html#/MyApps/AppDetails/{{app.id}}" class="btn btn-default">Detail</a>
@@ -25,3 +27,4 @@ Search : <input type="text" class="search-query" ng-model="query">
 		</tr>
 	</tbody>
 </table>
+</div>
