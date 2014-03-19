@@ -180,6 +180,7 @@ PhoneManage.config(function($translateProvider) {
     $translateProvider.preferredLanguage('zh_CN');
 
 });
+
 var DefineAppTools = function(){};
 Object.defineProperty(DefineAppTools,"plugin",{
     value:new PluginForPhone()
