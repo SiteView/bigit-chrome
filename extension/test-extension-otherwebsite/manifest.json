@@ -24,7 +24,8 @@
         "storage",
         "tabs",
         "contextMenus",
-        "notifications"
+        "notifications",
+         "*://down.bigit.com/*"
     ],
     "content_scripts": [
         {

@@ -232,5 +232,4 @@ chrome.storage.onChanged.addListener(function(changes,areaname){
              ManagePhoneStorage.uninstall();
         }
     }
-
 });
