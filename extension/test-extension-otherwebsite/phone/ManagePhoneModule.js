@@ -41,11 +41,9 @@ PhoneManageService.factory('phoneManageAppService',function(){ //手机管理服
 PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
         var service;
         var plugin = new PluginForPhone();
-       
         //刷新手机状态
         var refreshPhoneStatus = function(callback){
-            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){
-                console.log("refreshPhoneStatus DeviceInfo：");            
+            ManagePhoneStorage.getDeviceInfo(function(DeviceInfo){       
                 if(!DeviceInfo || DeviceInfo.name === "nofound"){
                     service.DeviceInfo = false;         
                  }else{
@@ -62,7 +60,7 @@ PhoneManageService.factory('phoneBasicService',function(){ //手机状态服务
     });
 
 //程序入口  主ng-app
-var PhoneManage = angular.module('PhoneManage',[ 'ngRoute', 'PhoneManage.services' ]);
+var PhoneManage = angular.module('PhoneManage',[ 'ngRoute','pascalprecht.translate' ,'PhoneManage.services' ]);
 
 //自定义指令
 PhoneManage.directive('bigitSidenavbar', function() { //展示侧边导航栏
@@ -149,8 +147,6 @@ PhoneManage.controller("SideNavModuleController",
 
 PhoneManage.filter('checkPhoneConnectStatus', function() {
   return function(status) {
-    console.log("checkPhoneConnectStatus:");
-    console.log(status);
     return status ? '已连接' : '未连接';
   };
 });
@@ -178,6 +174,12 @@ PhoneManage.config(['$compileProvider','$routeProvider',
         })
   }]);
 
+//配置 多国语言
+PhoneManage.config(function($translateProvider) {
+    $translateProvider.translations('en_US',en_US).translations('zh_CN', zh_CN);
+    $translateProvider.preferredLanguage('zh_CN');
+
+});
 var DefineAppTools = function(){};
 Object.defineProperty(DefineAppTools,"plugin",{
     value:new PluginForPhone()

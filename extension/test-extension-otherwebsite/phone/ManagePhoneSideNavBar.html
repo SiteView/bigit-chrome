@@ -13,7 +13,7 @@
 	<li ng-class="{active: isActive('/MyApps/AppList')}">
 		<a href="#/MyApps/AppList">
 			<span class="badge pull-right">{{phoneManageAppService.appsCount}}</span>
-			My App
+			{{'MyApps' | translate}}
 		</a>
 	</li>
 	<li><a href="#">My Contacts</a></li>
@@ -21,5 +21,5 @@
 	<li><a href="#">My Picture</a></li>
 	<li><a href="#">My Video</a></li>
 	<li><a href="#">My Sms</a></li>
-	<li ng-class="{active: isActive('/MyFiles')}"><a href="#/MyFiles">My Files</a></li>
+	<li ng-class="{active: isActive('/MyFiles')}"><a href="#/MyFiles">{{'MyFiles' | translate}}</a></li>
 </ul>
