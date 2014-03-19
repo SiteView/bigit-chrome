@@ -174,7 +174,6 @@ PhoneManage.config(['$compileProvider','$routeProvider',
         })
   }]);
 
-<<<<<<< HEAD
 //程序入口  主ng-app
 var PhoneManage = angular.module('PhoneManage',
     [
@@ -202,12 +201,11 @@ PhoneManage.directive('bigitContent',function(){ //展示顶部导航栏
             templateUrl: 'phone/ManagePhoneContent.html'
         };
     });
-=======
+
 //配置 多国语言
 PhoneManage.config(function($translateProvider) {
     $translateProvider.translations('en_US',en_US).translations('zh_CN', zh_CN);
     $translateProvider.preferredLanguage('zh_CN');
->>>>>>> dbf7d81b07c094ea0649fb8fc622bfe5be472836
 
 });
 var DefineAppTools = function(){};
