@@ -14,15 +14,21 @@ Search : <input type="text" class="search-query" ng-model="query">
 		</tr>
     </thead>
     <tbody>
-		<tr ng-repeat='app in phoneManageAppService.appList | filter:query'>
-			<td style="width: 20%" class="text-style">{{app.id}}</td>
+		<tr ng-repeat='app in phoneManageAppService.appList | filter:query' bigit-appinfo>
+			<td style="width: 20%" class="text-style" ><img <img ng-src="{{app.imagesrc |  emptyToImageSrc}}"/></td>
 			<td style="width: 20%" class="text-style">{{app.name}}</td>
 			<td style="width: 10%" class="text-style">{{app.version}}</td>
 			<td style="width: 10%" class="text-style">{{app.size}}</td>
 			<td style="width: 20%" class="text-style">{{app.location}}</td>
 			<td>
+
+				<button  type="button" class="btn btn-default"  ng-show="app.isUpdate">
+				        	更新
+				</button>
 				<button type="button" class="btn btn-default" ng-click='uninstall(app.id)'>uninstall</button>
+				<!--
 				<a  ng-href="/ManagePhone.html#/MyApps/AppDetails/{{app.id}}" class="btn btn-default">Detail</a>
+				-->
 			</td>
 		</tr>
 	</tbody>

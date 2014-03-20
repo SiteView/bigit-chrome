@@ -76,6 +76,32 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
         };
     });
 
+PhoneManage.directive('bigitAppinfo',function($http){ //展示顶部导航栏
+    return function(scope, element, attr){
+        var url = "http://down.bigit.com/bigit/appinfo";
+        var params = {
+            "params":{
+                "id":scope.app.id
+            }
+        }
+        //比较版本大小
+        var compareVersion = function(currentVersion,targetVersion){
+             currentVersion = currentVersion.match(/(\d(\.)?)*/)[0];
+             targetVersion = targetVersion.match(/(\d(\.)?)*/)[0];
+          //   var mainCurrentVersion = currentVersion.
+        }
+        $http.get(url, params)
+            .success(function(data, status, headers, config) {
+                     scope.app.name = data.name;
+                     scope.app.imagesrc = data.logo;
+                     //function a(s){return s.match(/(\d(\.)?)*/)}
+            }).error(function(data, status, headers, config){
+                    console.log(scope.app.name+"获取失败：错误代码"+status);
+            });
+        }
+    });
+
+
 //应用管理
 PhoneManage.controller("AppsManagerModuleCtrl",
     [
@@ -96,6 +122,12 @@ PhoneManage.controller("AppsManagerModuleCtrl",
             } 
             //获取某个App的信息
             $scope.appDetails = $phoneManageAppService.getAppDetail($routeParams.appid);
+
+
+            $scope.getImgSrc  = function(id){
+                console.log(id);
+            }
+
             //初始化数据
             ManagePhoneStorage.getAppListFormStorage(function(appList){
                 $scope.phoneManageAppService.appList = appList;
@@ -156,11 +188,30 @@ PhoneManage.controller('TopNavModuleCtrl',['$scope','$translate', function($scop
     $scope.languages = [{key:"en_US",value:"English"},{key:"zh_CN",value:"中文"}];
 }]);
 
-PhoneManage.filter('checkPhoneConnectStatus', function() {
+// 手机状态 装文字 文字
+PhoneManage.filter('checkPhoneConnectStatus', function() { 
   return function(status) {
     return status ? '已连接' : '未连接';
   };
 });
+//angular安全限制
+PhoneManage.config( [
+    '$compileProvider',
+    function( $compileProvider )
+    {   
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|http|chrome-extension):/);
+    }
+]);
+//空字符串转默认图片
+PhoneManage.filter("emptyToImageSrc",function(){
+    return function(src){
+        var defualtSrc = "assets/images/icon_19.png";
+         if(!src || !src.length){
+            src =  defualtSrc;
+         }
+         return src
+    }
+})
 
 //路由功能
 PhoneManage.config(['$compileProvider','$routeProvider',
