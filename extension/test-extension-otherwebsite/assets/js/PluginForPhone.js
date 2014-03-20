@@ -64,6 +64,49 @@ PluginForPhone.prototype.getDeviceInfo = function(callback){
 	callback(message);
 }
 
+//获取文件列表 默认为根目录 /sdcard
+PluginForPhone.prototype.getFilelist  = function(path){
+	var self =this;
+	if(!path){
+		path = "";
+	}
+	var result = self.plugin.GetFilelist(path);
+	return self.PhoneProtoBuilder.FileList.decode64(result)
+}
+
+//GetPictureList
+PluginForPhone.prototype.getPictureList = function(){
+	var result = self.plugin.GetPictureList(path);
+	return self.PhoneProtoBuilder.ResList.decode64(result)
+}
+
+//GetVideoList
+PluginForPhone.prototype.getVideoList = function(){
+	var result = self.plugin.GetVideoList(path);
+	return self.PhoneProtoBuilder.ResList.decode64(result)
+}
+
+//GetMusicList
+PluginForPhone.prototype.getMusicList = function(){
+	var result = self.plugin.GetVideoList(path);
+	return self.PhoneProtoBuilder.ResList.decode64(result)
+}
+//PushFile(const std::string& localFile,const std::string& remoteFile);
+PluginForPhone.prototype.pushFile = function(localFile,remoteFile){
+	var result = self.plugin.PushFile(localFile,remoteFile); 
+	console.log(result);
+}
+
+//PullFile(const std::string& remoteFile,const std::string& localFile);
+PluginForPhone.prototype.pushFile = function(remoteFile,localFile){
+	var result = self.plugin.PullFile(remoteFile,localFile); 
+	console.log(result);
+}
+//GetStorageInfo(const std::string& arg);
+PluginForPhone.prototype.getStorageInfo = function(){
+	var result = self.plugin.GetStorageInfo('');
+	return self.PhoneProtoBuilder.StorageInfo.decode64(result)
+}
 
 
 //检查连接usb连接状态 连接 1 ，未连接 0

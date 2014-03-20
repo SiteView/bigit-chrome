@@ -95,6 +95,14 @@ const char *kDoInstall = "DoInstall"; // 安装
 const char *kDoUninstall = "DoUninstall"; // 卸载
 const char *kCheckDevice = "CheckDevice"; 
 const char *kCheckApplist = "CheckApplist";
+
+GetFilelist
+std::string PushFile(const std::string& localFile,const std::string& remoteFile);
+std::string PullFile(const std::string& remoteFile,const std::string& localFile);
+GetStorageInfo(const std::string& arg);
+std::string GetPictureList(const std::string& arg);
+std::string GetVideoList(const std::string& arg);
+std::string GetMusicList(const std::string& arg);
 ```
 
 
