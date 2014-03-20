@@ -75,6 +75,12 @@ PhoneManage.directive('bigitTopnavbar',function(){ //展示顶部导航栏
             templateUrl: 'phone/ManagePhoneTopNavBar.html'
         };
     });
+PhoneManage.directive('bigitContent',function(){ //展示顶部导航栏
+        return {
+            restrict: 'E',
+            templateUrl: 'phone/ManagePhoneContent.html'
+        };
+    });
 //应用管理
 PhoneManage.controller("AppsManagerModuleCtrl",
     [
