@@ -81,6 +81,7 @@ PhoneManage.directive('bigitContent',function(){ //展示顶部导航栏
             templateUrl: 'phone/ManagePhoneContent.html'
         };
     });
+
 //应用管理
 PhoneManage.controller("AppsManagerModuleCtrl",
     [
@@ -150,6 +151,16 @@ PhoneManage.controller("SideNavModuleController",
             }
         }
     ]);
+
+//顶部导航
+PhoneManage.controller('TopNavModuleCtrl',['$scope','$translate', function($scope,$translate) {
+    $scope.setLang = function(langKey) {
+    // You can change the language during runtime
+        $translate.use(langKey);
+    };
+    $scope.language = $translate('language');
+    $scope.languages = [{key:"en_US",value:"English"},{key:"zh_CN",value:"中文"}];
+}]);
 
 PhoneManage.filter('checkPhoneConnectStatus', function() {
   return function(status) {
